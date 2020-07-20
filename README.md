@@ -35,10 +35,10 @@ FaceApi主要是人脸识别应用编程接口，包含了人脸检测、人脸�
 
 
 ## 其它
-[下载APK](https://gitlab.com/T-Firefly/FaceApiDemoV2/-/blob/master/doc/FaceApiDemoV2.apk)
+[下载APK](https://github.com/T-Firefly/FaceApiDemoV2/blob/master/doc/FaceApiDemoV2.apk)
 
 
-[English](https://gitlab.com/T-Firefly/FaceApiDemoV2/-/blob/master/README_EN.md)
+[English](https://github.com/T-Firefly/FaceApiDemoV2/blob/master/README_EN.md)
 
 
-[更多详细](https://gitlab.com/T-Firefly/FaceApiDemoV2/-/tree/master/doc)
+[更多详细](https://github.com/T-Firefly/FaceApiDemoV2/tree/master/doc)
