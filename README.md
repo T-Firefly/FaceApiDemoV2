@@ -12,3 +12,18 @@ FireflyApi包含了IDCard（身份证）、ICCard、二维码等相关功能，F
 
 ## FaceApi
 FaceApi主要是人脸识别应用编程接口，包含了人脸检测、人脸识别、人脸属性检测等相关功能。
+
+
+
+## 历史分支
+|  日期   | 版本  | 说明  |修改人  |
+|  ----  | ----  | ----  | ----  |
+| 2020-07-20  | 1.1 | V2版 |Xiao Datao｜Song Jianfeng |
+| 2020-05-21  | 1.0 | 初版完成 |Song Jianfeng |
+
+## 开发环境
+
+1. Android Studio >=3.6.2
+2. Gradel Version: 3.6.2
+3. Gradle Plugin Version: 3.6.2
+4. SDK Tool >=25.2.3
