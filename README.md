@@ -1,4 +1,4 @@
-# FaceApiDemoV2
+# FaceApiDemoV2 
 工程主要包含FireflyApi和FaceApi两个功能模块：
 
 
@@ -21,9 +21,24 @@ FaceApi主要是人脸识别应用编程接口，包含了人脸检测、人脸�
 | 2020-07-20  | 1.1 | V2版 |Xiao Datao｜Song Jianfeng |
 | 2020-05-21  | 1.0 | 初版完成 |Song Jianfeng |
 
+
+
+
 ## 开发环境
 
 1. Android Studio >=3.6.2
 2. Gradel Version: 3.6.2
 3. Gradle Plugin Version: 3.6.2
 4. SDK Tool >=25.2.3
+
+
+
+
+## 其它
+[下载APK](https://gitlab.com/T-Firefly/FaceApiDemoV2/-/blob/master/doc/FaceApiDemoV2.apk)
+
+
+[English](https://gitlab.com/T-Firefly/FaceApiDemoV2/-/blob/master/README_EN.md)
+
+
+[更多详细](https://gitlab.com/T-Firefly/FaceApiDemoV2/-/tree/master/doc)
