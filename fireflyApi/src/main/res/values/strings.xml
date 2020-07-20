@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FaceApiDemo</string>
+    <string name="testcase_idcard_rb_title_idcard">IDCard/ICCard</string>
+    <string name="testcase_idcard_rb_title_idcard2">IDCard</string>
+    <string name="testcase_idcard_rb_title_idcard_uuid">ID UUID</string>
+    <string name="testcase_idcard_rb_title_iccard">IC card</string>
+    <string name="testcase_idcard_connect">The device is connected</string>
+    <string name="testcase_idcard_disconnect">Device is not connected</string>
+    <string name="testcase_idcard_idcard_read_count">ID card reader times:</string>
+    <string name="testcase_idcard_idcard_read_message">Identity Information:</string>
+    <string name="testcase_idcard_idcard_read_uuid">ID UUID:</string>
+    <string name="testcase_idcard_iccard_read_id">IC card:</string>
+    <string name="testcase_idcard_iccard_read_type_a">TypeA</string>
+    <string name="testcase_idcard_iccard_read_type_b">TypeB</string>
+    <string name="testcase_ledcontrol_title">Control lights</string>
+    <string name="testcase_rs485_rs232_title">Rs485/Rs232 signal</string>
+    <string name="testcase_wiegand26_rs234_title">Wiegand26/Wiegand34 signal</string>
+    <string name="testcase_wiegand_title">Wiegand Signal</string>
+    <string name="testcase_wiegand_input_title">Wiegand input</string>
+    <string name="testcase_level_signal_title">Level signal</string>
+    <string name="testcase_relay_signal_title">Relay signal</string>
+    <string name="testcase_nfc_title">NFC</string>
+    <string name="testcase_radar_title">Radar</string>
+    <string name="testcase_qrcode_title">QR code</string>
+    <string name="testcase_tempature_title">Body temperature</string>
+    <string name="dictionaries">Body temperature</string>
+
+    <string name="firefly_api_dictionaries1">Status: No Link</string>
+    <string name="firefly_api_dictionaries2">Dimensional code fill light: automatic (automatically opened when the scan)</string>
+    <string name="firefly_api_dictionaries3">Dimensional code fill light: Always</string>
+    <string name="firefly_api_dictionaries4">Dimensional code fill light: Close</string>
+    <string name="firefly_api_dictionaries5">D0 signal</string>
+    <string name="firefly_api_dictionaries6">D1 signal</string>
+    <string name="firefly_api_dictionaries7">Signals D0 and D1</string>
+    <string name="firefly_api_dictionaries8">Detecting the object entering</string>
+    <string name="firefly_api_dictionaries9">Detected object leaves</string>
+    <string name="firefly_api_dictionaries10">NFC card</string>
+    <string name="firefly_api_dictionaries11">Ambient temperature:%s, the temperature after the temperature: %s, correction:%s</string>
+    <string name="firefly_api_dictionaries12">Name:%s \n Gender:%s \n nation:%s \n Date of birth:%s \n residence:%s \n ID number:%s \n issuing authority:%s \n valid:%s-%s </string>
+    <string name="firefly_api_dictionaries13">Transmitting rs485 / rs232 signal</string>
+    <string name="firefly_api_dictionaries14">White-light</string>
+    <string name="firefly_api_dictionaries15">Red lights</string>
+    <string name="firefly_api_dictionaries16">Green-light</string>
+    <string name="firefly_api_dictionaries17">automatic</string>
+    <string name="firefly_api_dictionaries18">Reset</string>
+    <string name="firefly_api_dictionaries19">Card number:</string>
+    <string name="firefly_api_dictionaries20">NotSupport</string>
+    <string name="firefly_api_dictionaries21">Support</string>
+    <string name="firefly_api_dictionaries22">Big</string>
+    <string name="firefly_api_dictionaries23">Little</string>
+    <string name="firefly_api_dictionaries24">Light Brightness %s</string>
+    <string name="firefly_api_dictionaries25">Infrared Led</string>
+</resources>

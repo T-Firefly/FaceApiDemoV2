@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:Android="http://schemas.android.com/apk/res/android">
+    <!-- 定义按钮按下时的图片 -->
+    <item Android:drawable="@drawable/solid_blue" Android:state_pressed="true"/>
+    <item Android:drawable="@drawable/solid_blue" Android:state_checked="true"/>
+    <item Android:drawable="@drawable/solid_blue" Android:state_focused="true"/>
+    <!-- 定义按钮默认的图片 -->
+    <item Android:drawable="@drawable/solid_grey"/>
+</selector>

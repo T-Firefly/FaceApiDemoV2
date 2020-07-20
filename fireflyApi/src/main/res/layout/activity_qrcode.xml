@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="40dp">
+
+    <TextView
+        android:id="@+id/txt_not_support"
+        android:text="@string/firefly_api_dictionaries20"
+        style="@style/txt_not_support" />
+
+    <LinearLayout
+        android:id="@+id/llayout_main"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/qrcode_led_auto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/firefly_api_dictionaries2" />
+
+        <Button
+            android:id="@+id/qrcode_led_on"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/firefly_api_dictionaries3" />
+
+        <Button
+            android:id="@+id/qrcode_led_off"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/firefly_api_dictionaries3" />
+    </LinearLayout>
+</LinearLayout>

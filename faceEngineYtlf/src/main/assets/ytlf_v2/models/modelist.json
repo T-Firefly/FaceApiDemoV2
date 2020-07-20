@@ -1,0 +1,13 @@
+{
+  "Face" : {
+    "ImageColor"  : "face-image-color-cpu-rk3288.bin",
+    "LivenessIR"  : "face-liveness-ir-cpu-rk3288.bin",
+    "Quality"     : "face-quality-cpu-rk3288.bin",
+    "Pose"        : "face-pose-cls-cpu-rk3288.bin",
+    "FaceMask"    : "face-mask-cpu-rk3288.bin",
+    "Detect"      : "face-detect-cpu-rk3288-11.bin", 
+    "IRDetect"    : "face-detect-cpu-rk3288-12.bin", 
+    "LandMark"    : "face-landmark-cpu-rk3288.bin",
+    "Feature"     : "face-feature-mask-cpu-rk3288.bin"
+  }
+}
