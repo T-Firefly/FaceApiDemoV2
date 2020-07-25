@@ -13,7 +13,7 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         ndk {
-            abiFilters "armeabi-v7a"
+            abiFilters "arm64-v8a"
         }
     }
 
@@ -31,9 +31,9 @@ android {
     }
     // Fix: More than one file was found
     packagingOptions {
-        pickFirst 'lib/armeabi-v7a/libarctern.so'
-        pickFirst 'lib/armeabi-v7a/libcutils.so'
-        pickFirst 'lib/armeabi-v7a/libc++.so'
+        pickFirst 'lib/arm64-v8a/libarctern.so'
+        pickFirst 'lib/arm64-v8a/libcutils.so'
+        pickFirst 'lib/arm64-v8a/libc++.so'
     }
 
     lintOptions {
