@@ -109,7 +109,7 @@ public class FaceDetectActivity extends BaseActivity implements DetectCallBack, 
     public void onLivingDetectListener(ArcternImage arcternImage, ArcternRect[] arcternRects, float[] confidences) {
     }
 
-    public void onAttributeListener(ArcternImage arcternImage, long[] trackId_list, ArcternRect[] arcternRects, ArcternAttribute[][] arcternAttributes) {
+    public void onAttributeListener(ArcternImage arcternImage, long[] trackId_list, ArcternRect[] arcternRects, ArcternAttribute[][] arcternAttributes, int[] landmarks) {
         StringBuilder attribute = new StringBuilder();
         for (int i = 0; i < arcternRects.length; i++) {
             for (int j = 0; j < arcternAttributes[i].length; j++) {
@@ -155,7 +155,7 @@ public class FaceDetectActivity extends BaseActivity implements DetectCallBack, 
     }
 
     @Override
-    public void onSearchListener(ArcternImage arcternImage, long[] trackId_list, ArcternRect[] arcternRects, long[] searchId_list) {
+    public void onSearchListener(ArcternImage arcternImage, long[] trackId_list, ArcternRect[] arcternRects, long[] searchId_list, int[] landmarks,float[] socre) {
         Tools.debugLog("onSearchListener");
         Person person = null;
         if (searchId_list.length > 0 && searchId_list[0] != -1) {
