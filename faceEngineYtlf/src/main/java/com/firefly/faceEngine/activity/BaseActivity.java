@@ -9,6 +9,7 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.firefly.api.HardwareCtrl;
 import com.firefly.faceEngine.utils.Tools;
 
 public class BaseActivity extends AppCompatActivity {
@@ -75,5 +76,25 @@ public class BaseActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    //是否支持红外补光灯
+    protected boolean isSupportInfraredFillLight() {
+        try {
+            return HardwareCtrl.isSupportInfraredFillLight();
+        } catch (Exception e) {
+            Tools.printStackTrace(e);
+            return false;
+        }
+    }
+
+    //打开/关闭 红外补光灯
+    protected void setInfraredFillLight(boolean enable) {
+        try {
+            Tools.debugLog("isSupportInfraredFillLight = %s", isSupportInfraredFillLight());
+            HardwareCtrl.setInfraredFillLight(enable);
+        } catch (Exception e) {
+            Tools.printStackTrace(e);
+        }
     }
 }

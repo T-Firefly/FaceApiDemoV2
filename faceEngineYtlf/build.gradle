@@ -57,9 +57,14 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:3.7.0'
     implementation 'com.github.tbruyelle:rxpermissions:0.10.2'
     implementation 'org.greenrobot:greendao:3.2.2'
+
     implementation(name: 'arctern-release', ext: 'aar')
     implementation(name: 'iface-release', ext: 'aar')
     implementation(name: 'faceEngineYtlfExternal', ext: 'aar')
+
+    //补光灯 fireflyApi库
+    implementation files('../fireflyApi/libs/fireflyapi.jar')
+    implementation project(':fireflyApi')
 
 
 }

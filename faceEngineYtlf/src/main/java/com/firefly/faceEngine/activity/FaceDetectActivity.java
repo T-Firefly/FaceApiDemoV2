@@ -1,9 +1,12 @@
 package com.firefly.faceEngine.activity;
 
+import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.view.View;
 import android.view.ViewTreeObserver;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.firefly.arcterndemo.R;
@@ -16,6 +19,7 @@ import com.firefly.faceEngine.view.GrayInterface;
 import com.firefly.faceEngine.view.GraySurfaceView;
 import com.firefly.faceEngine.view.LivingInterface;
 import com.firefly.faceEngine.view.LivingListener;
+import com.intellif.arctern.base.ArcternAttrResult;
 import com.intellif.arctern.base.ArcternAttribute;
 import com.intellif.arctern.base.ArcternImage;
 import com.intellif.arctern.base.ArcternRect;
@@ -32,9 +36,11 @@ import java.util.List;
 import java.util.Map;
 
 public class FaceDetectActivity extends BaseActivity implements DetectCallBack, TrackCallBack, AttributeCallBack, SearchCallBack, ExtractCallBack {
-    private ArcternImage iRimage = null;
+    private ArcternImage irImage = null;
+    private ArcternImage rbgImage = null;
     private TextView txt1, txt2, txt3;
     private FaceView faceView;
+    private ImageView imgLandmark;
     private GraySurfaceView grayInterface;
     private Map<Long, Person> mMapPeople = new HashMap<>();
     private CountDownTimer mCountDownTimer;
@@ -53,6 +59,7 @@ public class FaceDetectActivity extends BaseActivity implements DetectCallBack, 
         initView();
         getViewWH();
         startCountDownTimer();
+        setInfraredFillLight(true); //补光灯
     }
 
     private void initView() {
@@ -61,6 +68,7 @@ public class FaceDetectActivity extends BaseActivity implements DetectCallBack, 
         txt2 = findViewById(R.id.txt2);
         txt3 = findViewById(R.id.txt3);
         faceView = findViewById(R.id.faceview);
+        imgLandmark = findViewById(R.id.img_landmark);
 
         grayInterface = findViewById(R.id.grayInterface);
         grayInterface.setZOrderOnTop(true);
@@ -138,7 +146,7 @@ public class FaceDetectActivity extends BaseActivity implements DetectCallBack, 
                         break;
 
                     case ArcternAttribute.ArcternFaceAttrTypeEnum.FACE_MASK: //口罩检测
-                        attribute.append("\n").append(getString(attr.label == 1 ? R.string.ytlf_dictionaries8 : R.string.ytlf_dictionaries9)).append(" ");
+                        attribute.append("\n").append(getString(attr.label == ArcternAttribute.LabelFaceMask.MASK ? R.string.ytlf_dictionaries8 : R.string.ytlf_dictionaries9)).append(" ");
                         break;
 
                     case ArcternAttribute.ArcternFaceAttrTypeEnum.IMAGE_COLOR:
@@ -159,7 +167,7 @@ public class FaceDetectActivity extends BaseActivity implements DetectCallBack, 
         Tools.debugLog("onSearchListener");
         Person person = null;
         if (searchId_list.length > 0 && searchId_list[0] != -1) {
-             person = mMapPeople.get(searchId_list[0]);
+            person = mMapPeople.get(searchId_list[0]);
         }
 
         StringBuffer s = new StringBuffer();
@@ -175,11 +183,12 @@ public class FaceDetectActivity extends BaseActivity implements DetectCallBack, 
 
     LivingListener rgbLivingListener = new LivingListener() {
         @Override
-        public void livingData(ArcternImage image) {
-            frame_width = image.width;
-            frame_height = image.height;
-            if (iRimage != null) {
-                YTLFFace.doDelivery(image, iRimage);
+        public void livingData(ArcternImage arcternImage) {
+            rbgImage = arcternImage;
+            frame_width = rbgImage.width;
+            frame_height = rbgImage.height;
+            if (irImage != null) {
+                YTLFFace.doDelivery(rbgImage, irImage);
             }
         }
     };
@@ -188,7 +197,7 @@ public class FaceDetectActivity extends BaseActivity implements DetectCallBack, 
         @Override
         public void livingData(ArcternImage image) {
             //Tools.debugLog("ir livingData: ArcternImage: " + image);
-            iRimage = image;
+            irImage = image;
         }
     };
 
@@ -247,6 +256,10 @@ public class FaceDetectActivity extends BaseActivity implements DetectCallBack, 
                 if (timer % 150 == 0) {
                     showText(txt2, "--");
                 }
+
+                if (timer % 30 == 0) {
+                    //showLandmarksImage(); // test landmark
+                }
             }
 
             @Override
@@ -265,8 +278,47 @@ public class FaceDetectActivity extends BaseActivity implements DetectCallBack, 
             if (mCountDownTimer != null) {
                 mCountDownTimer.onFinish();
             }
+            setInfraredFillLight(false);
         } catch (Exception e) {
             Tools.printStackTrace(e);
         }
+    }
+
+    // test landmark
+    private void showLandmarksImage() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (rbgImage == null) {
+                        return;
+                    }
+
+                    Bitmap bitmap = Tools.nv21ToBitmap(rbgImage.gdata, rbgImage.width, rbgImage.height);
+                    ArcternAttrResult feature = YTLFFaceManager.getInstance().doFeature(rbgImage);
+                    if (feature == null || feature.landmark != null) {
+                        return;
+                    }
+
+                    final Bitmap bitmapWithPoint = Tools.mirroringBitmap(Tools.drawPointOnBitmap(bitmap, feature.landmark));
+                    Tools.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            imgLandmark.setImageBitmap(bitmapWithPoint);
+                            imgLandmark.setVisibility(View.VISIBLE);
+                        }
+                    });
+
+                } catch (Exception e) {
+                    Tools.printStackTrace(e);
+                    Tools.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            imgLandmark.setVisibility(View.GONE);
+                        }
+                    });
+                }
+            }
+        }).start();
     }
 }
