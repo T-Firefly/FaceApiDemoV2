@@ -295,7 +295,7 @@ public class FaceDetectActivity extends BaseActivity implements DetectCallBack, 
                     }
 
                     Bitmap bitmap = Tools.nv21ToBitmap(rbgImage.gdata, rbgImage.width, rbgImage.height);
-                    ArcternAttrResult feature = YTLFFaceManager.getInstance().doFeature(rbgImage);
+                    ArcternAttrResult feature = YTLFFace.doFeature(rbgImage);
                     if (feature == null || feature.landmark != null) {
                         return;
                     }
