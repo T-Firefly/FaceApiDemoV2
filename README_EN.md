@@ -17,7 +17,7 @@ Face Api is mainly a face recognition application programming interface, includi
                                                                                                                                                                           
 
 ## Other
-[Download APK](https://github.com/T-Firefly/FaceApiDemoV2/blob/arm64-v8a/doc/FaceApiDemoV2.apk)
+[Download APK](doc/FaceApiDemoV2.apk)
 
 
-[More details](https://github.com/T-Firefly/FaceApiDemoV2/tree/arm64-v8a/doc/English)
+[More details](doc/English)
