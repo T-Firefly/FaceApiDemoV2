@@ -1,0 +1,79 @@
+{
+  "Env": {
+    "TVM_NUM_THREADS": "2",
+    "OMP_NUM_THREADS":"0",
+    "TVM_THREAD_POOL_SPIN_COUNT":"1"
+  },
+  "License" : {
+    "LicensePubkey" : "/sdcard/firefly/ytlf_v2_lib64/license/license_public.x509.pem",
+    "LicenseFile"   : "/sdcard/firefly/ytlf_v2_lib64/license/license"
+  },
+  "Model" : {
+    "ModelPath"     : "/sdcard/firefly/ytlf_v2_lib64/models",
+    "ModelList"     : "/sdcard/firefly/ytlf_v2_lib64/models/modelist.json"
+  },
+  "Param" : {
+    "Capturer" : {
+      "Detector" : {
+        "Threshold" : 0.4,
+        "Interval"  : 8
+      },
+      "IRDetector" : {
+        "Threshold" : 0.4,
+        "Interval"  : 8
+      },
+      "Tracker": {
+        "ive_width":240,
+        "ive_height": 320
+      }
+    },
+    "Filter" : {
+      "Predictor" : {
+        "FaceMask"    : {
+          "Enable"    : true,
+          "Threshold" : 0.5 
+        },
+        "LivenessIR"  : {
+          "Enable"    : true,
+          "Threshold" : 0.5
+        },
+        "ImageColor"  : {
+          "Enable"    : true,
+          "Threshold" : -0.1
+        },
+        "Quality" : {
+          "Enable"       : true,
+          "Threshold"    : 0.15
+        },
+        "Pose"    : {
+          "Enable"       : false,
+          "PitchThresh"  : 4,
+          "YawThresh"    : 4,
+          "RollThresh"   : 4
+        }
+      }
+    },
+    "Searcher" : {
+      "MemDBBlock": 2000,
+      "Threshold" : 0.9,
+      "DequeNum"  : 0,
+      "MaxNum"    : 3,
+      "IsStrategy": true,
+      "block_fastmove_threshold": 0.6
+    },
+    "Recorder": {
+      "Dir": "/sdcard/firefly/ytlf_v2_lib64/record",
+      "Type": "PNG",
+      "AttrErrorSave": true
+    },
+    "Logger" : {
+      "Enable"     : true,
+      "Name"       : "/sdcard/firefly/ytlf_v2_lib64/arcternsdk-log.txt",
+      "Level"      : 0,
+      "FlushOn"    : 0,
+      "FlushEvery" : 8,
+      "FileSize"   : 4194304,
+      "NumFile"    : 2
+    }
+  }
+}

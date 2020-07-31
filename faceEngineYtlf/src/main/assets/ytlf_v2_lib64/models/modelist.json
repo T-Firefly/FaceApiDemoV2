@@ -1,0 +1,13 @@
+{
+  "Face" : {
+    "ImageColor"  : "face-image-color-cpu-rk3399.bin",
+    "LivenessIR"  : "face-liveness-ir-cpu-rk3399.bin",
+    "Quality"     : "face-quality-cpu-rk3399.bin",
+    "Pose"        : "face-pose-cls-cpu-rk3399.bin",
+    "FaceMask"    : "face-mask-cpu-rk3399.bin",
+    "Detect"      : "face-detect-cpu-rk3399-11.bin", 
+    "IRDetect"    : "face-detect-cpu-rk3399-11.bin", 
+    "LandMark"    : "face-landmark-cpu-rk3399.bin",
+    "Feature"     : "face-feature-mask-cpu-rk3399.bin"
+  }
+}
