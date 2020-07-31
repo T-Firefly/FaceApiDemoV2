@@ -41,7 +41,4 @@ FaceApi主要是人脸识别应用编程接口，包含了人脸检测、人脸�
 [English](README_EN.md)
 
 
-[arm64-v8a](/tree/arm64-v8a)
-
-
 [更多详细](doc)
