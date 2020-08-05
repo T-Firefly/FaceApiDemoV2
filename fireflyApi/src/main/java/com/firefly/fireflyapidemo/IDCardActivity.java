@@ -1,10 +1,9 @@
 package com.firefly.fireflyapidemo;
 
-import android.annotation.SuppressLint;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
@@ -157,6 +156,15 @@ public class IDCardActivity extends BaseActivity implements IDCardUtil.IDCardCal
     }
 
     @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (IDCardUtil.getInstance().handleEvent(event)) {
+            return true;
+        }
+
+        return super.dispatchKeyEvent(event);
+    }
+
+    @Override
     public void onMachineConnect() {
         Tools.debugLog("onMachineConnect");
         isMachineConnect = true;
@@ -190,6 +198,8 @@ public class IDCardActivity extends BaseActivity implements IDCardUtil.IDCardCal
                             info.getIssue(),
                             info.getCreateTimeStr(),
                             info.getValidTimeStr()));
+
+                    Tools.debugLog("picture:" + info.getPhoto());
 
                         /*mIDcardMessage.setText("姓名：" + info.getName() + "\n" +
                                 "性别：" + info.getSex() + "\n" +

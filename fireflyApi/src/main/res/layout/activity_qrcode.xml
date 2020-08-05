@@ -8,13 +8,22 @@
     <TextView
         android:id="@+id/txt_not_support"
         android:text="@string/firefly_api_dictionaries20"
-        style="@style/txt_not_support" />
+        style="@style/txt_not_support"
+        android:visibility="gone"/>
 
     <LinearLayout
         android:id="@+id/llayout_main"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+
+        <Switch
+            android:id="@+id/switch_active"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/firefly_api_dictionaries26"
+            android:layout_marginBottom="20dp"
+            android:checked="true"/>
 
         <Button
             android:id="@+id/qrcode_led_auto"
@@ -32,6 +41,13 @@
             android:id="@+id/qrcode_led_off"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/firefly_api_dictionaries3" />
+            android:text="@string/firefly_api_dictionaries4" />
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/txt_msg"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_marginTop="40dp"
+        android:textSize="22sp"/>
 </LinearLayout>

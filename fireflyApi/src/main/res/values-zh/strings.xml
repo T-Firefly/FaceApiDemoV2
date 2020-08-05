@@ -50,4 +50,5 @@
     <string name="firefly_api_dictionaries23">小端</string>
     <string name="firefly_api_dictionaries24">亮度调节 %s</string>
     <string name="firefly_api_dictionaries25">红外补光灯</string>
+    <string name="firefly_api_dictionaries26">二维码工作状态</string>
 </resources>
