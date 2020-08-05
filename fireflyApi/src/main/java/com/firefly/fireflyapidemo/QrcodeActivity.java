@@ -51,7 +51,7 @@ public class QrcodeActivity extends BaseActivity implements View.OnClickListener
         ((Switch) findViewById(R.id.switch_active)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                QrCodeUtil.getInstance().setActive(isChecked);
+                mQrCodeUtil.setActive(isChecked);
                 setText(R.id.txt_msg, "");
                 Tools.showLoadingProgressAutoDismiss(content);
             }
