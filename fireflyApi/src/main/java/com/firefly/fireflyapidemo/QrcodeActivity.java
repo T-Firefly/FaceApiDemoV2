@@ -35,7 +35,7 @@ public class QrcodeActivity extends BaseActivity implements View.OnClickListener
         mQrCodeUtil.setQRCodeCallback(mQRCodeCallback);
 
         mQrCodeUtil.init();
-        //是否开启二维码扫描补光灯
+        //设置对焦灯状态
         mQrCodeUtil.setFocusLedState(QrCodeUtil.LED_STATE_ON);
 
         Tools.runOnUiThread(new Runnable() {
