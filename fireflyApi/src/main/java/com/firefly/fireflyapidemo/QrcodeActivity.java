@@ -1,42 +1,27 @@
 package com.firefly.fireflyapidemo;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 
 import com.firefly.api.face.qrcode.QrCodeUtil;
 
 
-public class QrcodeActivity extends BaseActivity implements View.OnClickListener {
+public class QrcodeActivity extends BaseActivity {
 
     private QrCodeUtil mQrCodeUtil;
-    private Button mLedAuto, mLedOn, mLedOff;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_qrcode);
 
-        setVisibility(true, R.id.llayout_main);
-        mLedAuto = (Button) findViewById(R.id.qrcode_led_auto);
-        mLedOn = (Button) findViewById(R.id.qrcode_led_on);
-        mLedOff = (Button) findViewById(R.id.qrcode_led_off);
+        setVisibility(false, R.id.llayout_main);
+        Tools.showLoadingProgress(content, false);
 
-        mLedAuto.setOnClickListener(this);
-        mLedOn.setOnClickListener(this);
-        mLedOff.setOnClickListener(this);
-
-        //二维码
         mQrCodeUtil = QrCodeUtil.getInstance();
         mQrCodeUtil.setQRCodeCallback(mQRCodeCallback);
-
         mQrCodeUtil.init();
-        //设置对焦灯状态
-        mQrCodeUtil.setFocusLedState(QrCodeUtil.LED_STATE_ON);
 
         Tools.runOnUiThread(new Runnable() {
             @Override
@@ -44,32 +29,57 @@ public class QrcodeActivity extends BaseActivity implements View.OnClickListener
                 if (!QrCodeUtil.getInstance().isQrCodeSupport()) {
                     setVisibility(false, R.id.llayout_main);
                     setVisibility(true, R.id.txt_not_support);
+                    Tools.dismissLoadingProgress();
                 }
             }
         }, 3000);
 
+        // 二维码工作状态切换，会有10秒钟左右的延迟
         ((Switch) findViewById(R.id.switch_active)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    mQrCodeUtil.setLedState(QrCodeUtil.LED_STATE_AUTO);
+                    mQrCodeUtil.setFocusLedState(QrCodeUtil.LED_STATE_AUTO);
+                } else {
+                    mQrCodeUtil.setLedState(QrCodeUtil.LED_STATE_OFF);
+                    mQrCodeUtil.setFocusLedState(QrCodeUtil.LED_STATE_OFF);
+                }
+
                 mQrCodeUtil.setActive(isChecked);
                 setText(R.id.txt_msg, "");
-                Tools.showLoadingProgressAutoDismiss(content);
+                Tools.showLoadingProgressAutoDismiss(content, 10*1000);
             }
         });
     }
 
-
     private QrCodeUtil.QRCodeCallback mQRCodeCallback = new QrCodeUtil.QRCodeCallback() {
 
+        // 二维码工作状态初始化后，在onConnect()中进行最终的UI设置
         @Override
         public void onConnect() {
-            Tools.debugLog("QrCodeUtil.QRCodeCallback onConnect");
+            Tools.debugLog("onConnect: QrCodeUtil.getInstance().isQrCodeSupport() = " + QrCodeUtil.getInstance().isQrCodeSupport());
+            Tools.dismissLoadingProgress();
+            Tools.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    setText(R.id.txt_msg, "");
+                    if (QrCodeUtil.getInstance().isQrCodeSupport()) {
+                        mQrCodeUtil.setLedState(QrCodeUtil.LED_STATE_AUTO);
+                        mQrCodeUtil.setFocusLedState(QrCodeUtil.LED_STATE_AUTO);
+                        setVisibility(true, R.id.llayout_main);
+                        setVisibility(false, R.id.txt_not_support);
+                    } else {
+                        setVisibility(false, R.id.llayout_main);
+                        setVisibility(true, R.id.txt_not_support);
+                    }
+                }
+            });
         }
 
         @Override
         public void onData(final String s) {
             Tools.debugLog("onData:" + s);
-
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -86,19 +96,5 @@ public class QrcodeActivity extends BaseActivity implements View.OnClickListener
             mQrCodeUtil.release();
         }
         mQrCodeUtil = null;
-    }
-
-    @Override
-    public void onClick(View view) {
-        int id = view.getId();
-        if (id == R.id.qrcode_led_auto) {
-            mQrCodeUtil.setLedState(QrCodeUtil.LED_STATE_AUTO);
-        } else if (id == R.id.qrcode_led_on) {
-            mQrCodeUtil.setLedState(QrCodeUtil.LED_STATE_ON);
-        } else if (id == R.id.qrcode_led_off) {
-            mQrCodeUtil.setLedState(QrCodeUtil.LED_STATE_OFF);
-        }
-
-        Tools.showLoadingProgressAutoDismiss(content);
     }
 }

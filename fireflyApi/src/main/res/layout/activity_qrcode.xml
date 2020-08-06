@@ -24,24 +24,6 @@
             android:text="@string/firefly_api_dictionaries26"
             android:layout_marginBottom="20dp"
             android:checked="true"/>
-
-        <Button
-            android:id="@+id/qrcode_led_auto"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/firefly_api_dictionaries2" />
-
-        <Button
-            android:id="@+id/qrcode_led_on"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/firefly_api_dictionaries3" />
-
-        <Button
-            android:id="@+id/qrcode_led_off"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/firefly_api_dictionaries4" />
     </LinearLayout>
 
     <TextView
@@ -49,5 +31,6 @@
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:layout_marginTop="40dp"
-        android:textSize="22sp"/>
+        android:textSize="22sp"
+        android:text="loading"/>
 </LinearLayout>
