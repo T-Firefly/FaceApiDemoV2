@@ -10,6 +10,7 @@ import com.firefly.api.face.qrcode.QrCodeUtil;
 public class QrcodeActivity extends BaseActivity {
 
     private QrCodeUtil mQrCodeUtil;
+    private Switch mSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,6 +19,7 @@ public class QrcodeActivity extends BaseActivity {
 
         setVisibility(false, R.id.llayout_main);
         Tools.showLoadingProgress(content, false);
+        mSwitch = findViewById(R.id.switch_active);
 
         mQrCodeUtil = QrCodeUtil.getInstance();
         mQrCodeUtil.setQRCodeCallback(mQRCodeCallback);
@@ -35,7 +37,7 @@ public class QrcodeActivity extends BaseActivity {
         }, 3000);
 
         // 二维码工作状态切换，会有10秒钟左右的延迟
-        ((Switch) findViewById(R.id.switch_active)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        mSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
@@ -48,7 +50,7 @@ public class QrcodeActivity extends BaseActivity {
 
                 mQrCodeUtil.setActive(isChecked);
                 setText(R.id.txt_msg, "");
-                Tools.showLoadingProgressAutoDismiss(content, 10*1000);
+                Tools.showLoadingProgressAutoDismiss(content, 10 * 1000);
             }
         });
     }
@@ -90,11 +92,22 @@ public class QrcodeActivity extends BaseActivity {
     };
 
     @Override
+    public void finish(){
+        // 有10秒钟左右的延迟
+        if (mSwitch.isChecked() && mQrCodeUtil != null) {
+            mQrCodeUtil.setLedState(QrCodeUtil.LED_STATE_OFF);
+            mQrCodeUtil.setFocusLedState(QrCodeUtil.LED_STATE_OFF);
+            mQrCodeUtil.setActive(false);
+        }
+        super.finish();
+    }
+
+    @Override
     protected void onDestroy() {
-        super.onDestroy();
         if (mQrCodeUtil != null) {
             mQrCodeUtil.release();
         }
         mQrCodeUtil = null;
+        super.onDestroy();
     }
 }
