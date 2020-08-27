@@ -12,15 +12,21 @@ public class TempatureActivity extends BaseActivity implements TempatureUtil.Tem
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_default);
-        if (TempatureUtil.getInstance().isSupport()) {
-            //初始化
-            TempatureUtil.getInstance().openDevice();
-            TempatureUtil.getInstance().setTempatureCallback(this);
-            setVisibility(true, R.id.txt);
-            setVisibility(false, R.id.txt_not_support);
-        } else {
-            setVisibility(false, R.id.txt);
-            setVisibility(true, R.id.txt_not_support);
+        TempatureUtil.getInstance().setTempatureCallback(this);
+        TempatureUtil.getInstance().openDevice();
+
+        if (!TempatureUtil.getInstance().isSupport()) {
+            Tools.showLoadingProgress(content, false);
+            Tools.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (TempatureUtil.getInstance().isSupport()) {
+                        setVisibility(true, R.id.txt);
+                        setVisibility(false, R.id.txt_not_support);
+                        Tools.dismissLoadingProgress();
+                    }
+                }
+            }, 3000);
         }
     }
 
@@ -32,6 +38,7 @@ public class TempatureActivity extends BaseActivity implements TempatureUtil.Tem
 
     @Override
     public void connect() {
+        Tools.dismissLoadingProgress();
         Tools.runOnUiThread(new Runnable() {
             @Override
             public void run() {
