@@ -32,8 +32,6 @@ android {
     // Fix: More than one file was found
     packagingOptions {
         pickFirst 'lib/armeabi-v7a/libarctern.so'
-        pickFirst 'lib/armeabi-v7a/libcutils.so'
-        pickFirst 'lib/armeabi-v7a/libc++.so'
     }
 
     lintOptions {
