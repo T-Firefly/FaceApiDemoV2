@@ -1,10 +1,9 @@
 package com.firefly.fireflyapidemo;
 
-import android.annotation.SuppressLint;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
@@ -33,19 +32,20 @@ public class IDCardActivity extends BaseActivity implements IDCardUtil.IDCardCal
     private TextView mIDcardUUID;
     private TextView mICCardID;
     private RadioGroup mICcardTypeRadioGroup;
-    private Handler mHandler = new Handler();
+    private IDCardUtil idCardUtil;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_idcard_v2);
+        idCardUtil =  new IDCardUtil();
         initView();
 
         Tools.showLoadingProgressAutoDismiss(this, new Runnable() {
             @Override
             public void run() {
-                onResume();
-                initIDCardUtil();
+                initViewData();
+                initIDCardReadMode();
             }
         });
     }
@@ -63,9 +63,9 @@ public class IDCardActivity extends BaseActivity implements IDCardUtil.IDCardCal
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int id) {
                 if (id == R.id.iccard_read_typea) {//iccard的大端模式
-                    IDCardUtil.getInstance().setICCardEndianMode(true);
+                    idCardUtil.setICCardEndianMode(true);
                 } else if (id == R.id.iccard_read_typeb) {//iccard的小端模式
-                    IDCardUtil.getInstance().setICCardEndianMode(false);
+                    idCardUtil.setICCardEndianMode(false);
                 }
                 mICCardID.setText(null);
             }
@@ -90,14 +90,14 @@ public class IDCardActivity extends BaseActivity implements IDCardUtil.IDCardCal
         });
     }
 
-    private void initIDCardUtil(){
-        if (IDCardUtil.getInstance().isSupportIDCard()) {
+    private void initViewData(){
+        if (idCardUtil.isSupportIDCard()) {
             setTextSupport(R.id.txt_id_card);
         } else {
             setTextSupport(R.id.txt_id_card, "IDCard", false);
         }
 
-        if (IDCardUtil.getInstance().isSupportICCard()) {
+        if (idCardUtil.isSupportICCard()) {
             setTextSupport(R.id.txt_ic_card);
         } else {
             for (int i = 0; i < mICcardTypeRadioGroup.getChildCount(); i++) {
@@ -105,17 +105,19 @@ public class IDCardActivity extends BaseActivity implements IDCardUtil.IDCardCal
             }
             setTextSupport(R.id.txt_ic_card, "ICCard", false);
         }
+    }
 
-        if (IDCardUtil.getInstance().isSupportIDCard()) {
+    private void initIDCardReadMode(){
+        if (idCardUtil.isSupportIDCard()) {
             mReadMode = IDCardConfig.READCARD_MODE_IDENTITY_CARD;
-        } else if (IDCardUtil.getInstance().isSupportICCard()) {
+        } else if (idCardUtil.isSupportICCard()) {
             mReadMode = IDCardConfig.READCARD_MODE_IC_CARD;
         }
     }
 
     private void switchReadMode() {
         if (isMachineConnect) {
-            IDCardUtil.getInstance().setModel(mReadMode);
+            idCardUtil.setModel(mReadMode);
         }
 
         switch (mReadMode) {
@@ -137,7 +139,7 @@ public class IDCardActivity extends BaseActivity implements IDCardUtil.IDCardCal
                 }
 
                 if (isMachineConnect) {
-                    IDCardUtil.getInstance().setICCardType(mICcardType);
+                    idCardUtil.setICCardType(mICcardType);
                 }
                 break;
         }
@@ -146,23 +148,36 @@ public class IDCardActivity extends BaseActivity implements IDCardUtil.IDCardCal
     @Override
     protected void onResume() {
         super.onResume();
-        IDCardUtil.getInstance().setIDCardCallBack(this);
-        IDCardUtil.getInstance().bindIDCardService(this);
+        idCardUtil.startIDCardListener(this, this);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        IDCardUtil.getInstance().unBindIDCardService(this);
+        idCardUtil.stopIDCardListener(this);
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (idCardUtil.handleEvent(event)) {
+            return true;
+        }
+
+        return super.dispatchKeyEvent(event);
     }
 
     @Override
     public void onMachineConnect() {
-        Tools.debugLog("onMachineConnect");
-        isMachineConnect = true;
-        switchReadMode();
-        mIDcardDeviceConnect.setText(R.string.testcase_idcard_connect);
-        mIDcardDeviceConnect.setVisibility(View.GONE);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Tools.debugLog("onMachineConnect");
+                isMachineConnect = true;
+                switchReadMode();
+                mIDcardDeviceConnect.setText(R.string.testcase_idcard_connect);
+                mIDcardDeviceConnect.setVisibility(View.GONE);
+            }
+        });
     }
 
     @Override
@@ -190,6 +205,8 @@ public class IDCardActivity extends BaseActivity implements IDCardUtil.IDCardCal
                             info.getIssue(),
                             info.getCreateTimeStr(),
                             info.getValidTimeStr()));
+
+                    Tools.debugLog("picture:" + info.getPhoto());
 
                         /*mIDcardMessage.setText("姓名：" + info.getName() + "\n" +
                                 "性别：" + info.getSex() + "\n" +
