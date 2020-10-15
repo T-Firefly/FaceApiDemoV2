@@ -42,7 +42,7 @@ public class TempatureActivity extends BaseActivity implements TempatureUtil.Tem
         Tools.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                setText(R.id.txt, R.string.firefly_api_dictionaries1);
+                setText(R.id.txt, "Device connected");
             }
         });
     }
