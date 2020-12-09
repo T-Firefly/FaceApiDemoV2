@@ -9,7 +9,7 @@
     tools:context="com.firefly.faceEngine.activity.ArcternMainActivity">
 
     <Button
-        android:id="@+id/btn_delete"
+        android:id="@+id/btn_detect"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/ytlf_dictionaries7"

@@ -36,7 +36,7 @@ public class ArcternMainActivity extends BaseActivity {
         setContentView(R.layout.activity_face_main);
         initSetting();
         //requestPermission();
-        //findViewById(R.id.btn_delete).performClick();
+        //findViewById(R.id.btn_detect).performClick();
         if (!Tools.isCameraCanUse()) {
             Tools.toast("Camera occupied or unavailable");
             finish();
