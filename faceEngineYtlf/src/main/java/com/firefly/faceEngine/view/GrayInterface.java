@@ -142,22 +142,32 @@ public class GrayInterface implements Camera.PreviewCallback{
 	private void configureCamera(int width, int height) {
 		Camera.Parameters parameters = mCamera.getParameters();
 		// Set the PreviewSize and AutoFocus:..
-		setOptimalPreviewSize(parameters, width, height);
+		setOptimalPreviewSize(parameters);
 		setAutoFocus(parameters);
 //		parameters.setZoom(10);
 		// And set the parameters:
 		parameters.setPreviewFormat(ImageFormat.NV21);
+		parameters.setRotation(90);
 		mCamera.setParameters(parameters);
 	}
-	private void setOptimalPreviewSize(Camera.Parameters cameraParameters, int width, int height) {
+	private void setOptimalPreviewSize(Camera.Parameters cameraParameters) {
 		cameraParameters.setPreviewSize(previewWidth,previewHeight);
+		cameraParameters.setPictureSize(previewWidth, previewHeight);
 	}
 	//设置聚焦
 	private void setAutoFocus(Camera.Parameters cameraParameters) {
-		List<String> focusModes = cameraParameters.getSupportedFocusModes();
-		if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE))
-			cameraParameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+		List<String> supportedFocusModes = cameraParameters.getSupportedFocusModes();
+		if (supportedFocusModes != null && supportedFocusModes.size() > 0) {
+			if (supportedFocusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
+				cameraParameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+			} else if (supportedFocusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
+				cameraParameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+			} else if (supportedFocusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
+				cameraParameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+			}
+		}
 	}
+
 	private void setDisplayOrientation() {
 		// Now set the display orientation:
 		mDisplayRotation = MatrixYuvUtils.getDisplayRotation(mActivity);
