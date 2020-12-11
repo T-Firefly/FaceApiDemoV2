@@ -208,6 +208,7 @@ public class LivingInterface implements Camera.PreviewCallback {
         arcternImage.height = previewWidth;
         arcternImage.image_format = ArcternImage.ARCTERN_IMAGE_FORMAT_NV21;
         arcternImage.frame_id = 0;
+        rotateYUV420Degree90(arcternImage);
         livingListener.livingData(arcternImage);
     }
 
