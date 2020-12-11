@@ -4,14 +4,28 @@ import android.app.Activity;
 import android.app.Application;
 import android.app.Fragment;
 import android.content.pm.ApplicationInfo;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.ImageFormat;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.YuvImage;
+import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Tools {
@@ -106,7 +120,11 @@ public class Tools {
     }
 
     public static void debugLog(CharSequence msg) {
-        log_d("firefly_debug", "" + msg);
+        String thread = "";
+        if (isUIThread()) {
+            thread = "isUIThread: ";
+        }
+        log_d("firefly_debug", thread + msg);
     }
 
     public static void debugLog(String format, Object... args) {
@@ -269,5 +287,216 @@ public class Tools {
             Tools.printStackTrace(e);
             return true;
         }
+    }
+
+    public static boolean isUIThread() {
+        try {
+            return Looper.myLooper() == Looper.getMainLooper();
+        } catch (Throwable e) {
+            printStackTrace(e);
+            return false;
+        }
+    }
+
+    public static boolean isCameraCanUse(int cameraId) {
+        boolean canUse = false;
+        Camera mCamera = null;
+        try {
+            mCamera = Camera.open(0);
+            Camera.Parameters mParameters = mCamera.getParameters();
+            mCamera.setParameters(mParameters);
+        } catch (Exception e) {
+            printStackTrace(e);
+            canUse = false;
+        }
+
+        try {
+            if (mCamera != null) {
+                mCamera.release();
+                canUse = true;
+            }
+        } catch (Exception e) {
+            printStackTrace(e);
+        }
+
+        return canUse;
+    }
+
+    public static boolean isCameraCanUse(){
+        return isCameraCanUse(Camera.CameraInfo.CAMERA_FACING_BACK) &&
+                isCameraCanUse(Camera.CameraInfo.CAMERA_FACING_FRONT);
+    }
+
+    public static boolean isZh() {
+        try {
+            return getApp().getResources().getConfiguration()
+                    .locale
+                    .getLanguage()
+                    .toLowerCase()
+                    .endsWith("zh");
+        } catch (Exception e) {
+            printStackTrace(e);
+            return true;
+        }
+    }
+
+    /**
+     * 水平翻转Bitmap，
+     */
+    public static Bitmap mirroringBitmap(Bitmap bmp) {
+        try {
+            int w = bmp.getWidth();
+            int h = bmp.getHeight();
+            Bitmap newb = Bitmap.createBitmap(w, h, Bitmap.Config.RGB_565);
+            Canvas cv = new Canvas(newb);
+            Matrix m = new Matrix();
+            //m.postScale(1, -1);   //镜像垂直翻转
+            m.postScale(-1, 1);   //镜像水平翻转
+            //m.postRotate(-90);  //旋转-90度
+            Bitmap new2 = Bitmap.createBitmap(bmp, 0, 0, w, h, m, true);
+            cv.drawBitmap(new2, new Rect(0, 0, new2.getWidth(), new2.getHeight()), new Rect(0, 0, w, h), null);
+            return newb;
+        } catch (Exception e) {
+            printStackTrace(e);
+            return bmp;
+        }
+    }
+
+    // 将纯BGR数据数组转化成int像素数组
+    public static int[] convertBGRByteToColor(byte[] data) {
+        int size = data.length;
+        if (size == 0) {
+            return null;
+        }
+
+        int arg = 0;
+        if (size % 3 != 0) {
+            arg = 1;
+        }
+
+        // 一般RGB字节数组的长度应该是3的倍数，
+        // 不排除有特殊情况，多余的RGB数据用黑色0XFF000000填充
+        int[] color = new int[size / 3 + arg];
+        int red, green, blue;
+        int colorLen = color.length;
+        if (arg == 0) {
+            for (int i = 0; i < colorLen; ++i) {
+                color[i] = (data[i * 3+ 2] << 16 & 0x00FF0000) |
+                        (data[i * 3 + 1] << 8 & 0x0000FF00 ) |
+                        (data[i * 3 ] & 0x000000FF ) |
+                        0xFF000000;
+            }
+        } else {
+            for (int i = 0; i < colorLen - 1; ++i) {
+                color[i] = (data[i * 3+ 2] << 16 & 0x00FF0000) |
+                        (data[i * 3 + 1] << 8 & 0x0000FF00 ) |
+                        (data[i * 3 ] & 0x000000FF ) |
+                        0xFF000000;
+            }
+            color[colorLen - 1] = 0xFF000000;
+        }
+
+        return color;
+    }
+
+    public static Bitmap drawPointOnBitmap(Bitmap bitmap, int[] landmark){
+        Bitmap newbitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+        Canvas cv = new Canvas(newbitmap);
+        Paint paint = new Paint();
+        paint.setStyle(Paint.Style.STROKE);//设置非填充
+
+        paint.setStrokeWidth(8);//笔宽5像素
+
+        paint.setColor(Color.RED);//设置为红笔
+
+        paint.setAntiAlias(true);//锯齿不显示
+
+        paint.setDither(true);//设置图像抖动处理
+
+        paint.setStrokeJoin(Paint.Join.ROUND);//设置图像的结合方式
+
+        paint.setStrokeCap(Paint.Cap.ROUND);//设置画笔为圆形样式
+
+
+//        cv.drawPoint(250,250,paint);
+        int splitSize = 2;//分割的块大小
+        Object[] subAry = splitAry(landmark, splitSize);//分割后的子块数组
+
+        for(Object obj: subAry){//打印输出结果
+            int[] aryItem = (int[]) obj;
+//            for(int i = 0; i < aryItem.length; i++){
+//              Log.e("array",(aryItem[i] + ", "));
+//            }
+//            System.out.println();
+            Log.e("array",(aryItem[0] + ", "+aryItem[1]));
+            cv.drawPoint(aryItem[0],aryItem[1],paint);
+        }
+        cv.save();
+        cv.restore();
+        return newbitmap;
+    }
+
+    /**
+     * splitAry方法<br>
+     * @param ary 要分割的数组
+     * @param subSize 分割的块大小
+     * @return
+     *
+     */
+    private static Object[] splitAry(int[] ary, int subSize) {
+        int count = ary.length % subSize == 0 ? ary.length / subSize: ary.length / subSize + 1;
+
+        List<List<Integer>> subAryList = new ArrayList<List<Integer>>();
+
+        for (int i = 0; i < count; i++) {
+            int index = i * subSize;
+            List<Integer> list = new ArrayList<Integer>();
+            int j = 0;
+            while (j < subSize && index < ary.length) {
+                list.add(ary[index++]);
+                j++;
+            }
+            subAryList.add(list);
+        }
+
+        Object[] subAry = new Object[subAryList.size()];
+
+        for(int i = 0; i < subAryList.size(); i++){
+            List<Integer> subList = subAryList.get(i);
+            int[] subAryItem = new int[subList.size()];
+            for(int j = 0; j < subList.size(); j++){
+                subAryItem[j] = subList.get(j).intValue();
+            }
+            subAry[i] = subAryItem;
+        }
+
+        return subAry;
+    }
+
+    /**
+     * 将BRG字节数组转换成Bitmap，
+     */
+    public static Bitmap bgr2Bitmap(byte[] data, int width, int height) {
+        int[] colors = convertBGRByteToColor(data);    //取RGB值转换为int数组
+        if (colors == null) {
+            return null;
+        }
+
+        Bitmap bmp = Bitmap.createBitmap(colors, 0, width, width, height,Bitmap.Config.RGB_565);
+        return bmp;
+    }
+
+    public static Bitmap nv21ToBitmap(byte[] nv21, int width, int height) {
+        Bitmap bitmap = null;
+        try {
+            YuvImage image = new YuvImage(nv21, ImageFormat.NV21, width, height, null);
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            image.compressToJpeg(new Rect(0, 0, width, height), 80, stream);
+            bitmap = BitmapFactory.decodeByteArray(stream.toByteArray(), 0, stream.size());
+            stream.close();
+        } catch (Exception e) {
+            printStackTrace(e);
+        }
+        return bitmap;
     }
 }

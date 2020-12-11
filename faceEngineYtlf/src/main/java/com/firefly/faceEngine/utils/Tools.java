@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 人脸相关处理
  * Created by intellif on 2017/10/17.
  */
-public class Tools extends AppTools{
+public class Tools extends com.firefly.fireflyapidemo.Tools{
     private static AtomicInteger atomicInteger = new AtomicInteger(1);
     //    /** 在bitmap上画图（人脸框） */
     public static Bitmap drawBitmap(ArcternRect faceRect, Bitmap previewBitmap) {
