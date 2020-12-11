@@ -13,6 +13,7 @@ import android.util.TypedValue;
 import android.view.View;
 
 import com.firefly.faceEngine.utils.Constants;
+import com.firefly.faceEngine.utils.Tools;
 import com.intellif.arctern.base.ArcternRect;
 
 public class FaceView extends View {

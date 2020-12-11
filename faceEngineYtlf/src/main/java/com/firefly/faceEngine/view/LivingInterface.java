@@ -40,7 +40,6 @@ public class LivingInterface implements Camera.PreviewCallback {
     private final int previewHeight = 480;
     private int ratio = 1280;
     private LivingListener livingListener;
-    private ArcternImage arcternImage = new ArcternImage();
 
     private LivingInterface() {
     }
@@ -203,45 +202,17 @@ public class LivingInterface implements Camera.PreviewCallback {
 
     @Override
     public void onPreviewFrame(final byte[] data, Camera camera) {
-        if (!Constants.recognition_overturn_rgbcamera) {
-            if (mDisplayOrientation == 0) {
-                arcternImage.gdata = data;
-                arcternImage.width = previewWidth;
-                arcternImage.height = previewHeight;
-            } else if (mDisplayOrientation == 90) {
-                arcternImage.gdata = MatrixYuvUtils.rotateYUV420Degree90(data, previewWidth, previewHeight);
-                arcternImage.width = previewHeight;
-                arcternImage.height = previewWidth;
-            } else if (mDisplayOrientation == 180) {
-                arcternImage.gdata = MatrixYuvUtils.rotateYUV420Degree180(data, previewWidth, previewHeight);
-                arcternImage.width = previewWidth;
-                arcternImage.height = previewHeight;
-            } else {
-                arcternImage.gdata = MatrixYuvUtils.rotateYUV420Degree270(data, previewWidth, previewHeight);
-                arcternImage.width = previewHeight;
-                arcternImage.height = previewWidth;
-            }
-        } else {
-            if (mDisplayOrientation == 0) {
-                arcternImage.gdata = MatrixYuvUtils.rotateYUV420Degree180(data, previewWidth, previewHeight);
-                arcternImage.width = previewWidth;
-                arcternImage.height = previewHeight;
-            } else if (mDisplayOrientation == 90) {
-                arcternImage.gdata = MatrixYuvUtils.rotateYUV420Degree270(data, previewWidth, previewHeight);
-                arcternImage.width = previewHeight;
-                arcternImage.height = previewWidth;
-            } else if (mDisplayOrientation == 180) {
-                arcternImage.gdata = data;
-                arcternImage.width = previewWidth;
-                arcternImage.height = previewHeight;
-            } else {
-                arcternImage.gdata = MatrixYuvUtils.rotateYUV420Degree90(data, previewWidth, previewHeight);
-                arcternImage.width = previewHeight;
-                arcternImage.height = previewWidth;
-            }
-        }
+        ArcternImage arcternImage = new ArcternImage();
+        arcternImage.gdata = data;
+        arcternImage.width = previewHeight;
+        arcternImage.height = previewWidth;
         arcternImage.image_format = ArcternImage.ARCTERN_IMAGE_FORMAT_NV21;
         arcternImage.frame_id = 0;
+        rotateYUV420Degree90(arcternImage);
         livingListener.livingData(arcternImage);
+    }
+
+    public static void rotateYUV420Degree90(ArcternImage arcternImage){
+        arcternImage.gdata = MatrixYuvUtils.rotateYUV420Degree90(arcternImage.gdata, arcternImage.height, arcternImage.width);
     }
 }

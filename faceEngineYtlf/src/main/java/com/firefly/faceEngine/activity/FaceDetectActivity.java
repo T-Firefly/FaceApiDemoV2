@@ -283,42 +283,4 @@ public class FaceDetectActivity extends BaseActivity implements DetectCallBack, 
             Tools.printStackTrace(e);
         }
     }
-
-    // test landmark
-    private void showLandmarksImage() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    if (rbgImage == null) {
-                        return;
-                    }
-
-                    Bitmap bitmap = Tools.nv21ToBitmap(rbgImage.gdata, rbgImage.width, rbgImage.height);
-                    ArcternAttrResult feature = YTLFFace.doFeature(rbgImage);
-                    if (feature == null || feature.landmark != null) {
-                        return;
-                    }
-
-                    final Bitmap bitmapWithPoint = Tools.mirroringBitmap(Tools.drawPointOnBitmap(bitmap, feature.landmark));
-                    Tools.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            imgLandmark.setImageBitmap(bitmapWithPoint);
-                            imgLandmark.setVisibility(View.VISIBLE);
-                        }
-                    });
-
-                } catch (Exception e) {
-                    Tools.printStackTrace(e);
-                    Tools.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            imgLandmark.setVisibility(View.GONE);
-                        }
-                    });
-                }
-            }
-        }).start();
-    }
 }
