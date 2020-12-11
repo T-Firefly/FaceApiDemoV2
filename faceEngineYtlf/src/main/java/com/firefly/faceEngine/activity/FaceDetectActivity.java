@@ -34,6 +34,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class FaceDetectActivity extends BaseActivity implements DetectCallBack, TrackCallBack, AttributeCallBack, SearchCallBack, ExtractCallBack {
     private ArcternImage irImage = null;
@@ -45,6 +48,8 @@ public class FaceDetectActivity extends BaseActivity implements DetectCallBack, 
     private Map<Long, Person> mMapPeople = new HashMap<>();
     private CountDownTimer mCountDownTimer;
     private YTLFFaceManager YTLFFace = YTLFFaceManager.getInstance();
+    private ExecutorService executorService;
+    private Future future;
 
     private int view_width, view_height;
     private int frame_width, frame_height;
@@ -89,7 +94,7 @@ public class FaceDetectActivity extends BaseActivity implements DetectCallBack, 
     @Override
     protected void onResume() {
         super.onResume();
-        List<Person>  mPeople = App.getInstance().getDbManager().getPersonList();
+        List<Person> mPeople = App.getInstance().getDbManager().getPersonList();
         for (Person person : mPeople) {
             mMapPeople.put(person.getId(), person);
             Tools.debugLog("person:" + person);
@@ -140,8 +145,8 @@ public class FaceDetectActivity extends BaseActivity implements DetectCallBack, 
                             faceView.isRed = true;
                             //attribute.append("\n  ");
                             showText(txt2, "--");
-                        } else{
-                            return ;
+                        } else {
+                            return;
                         }
                         break;
 
@@ -163,7 +168,7 @@ public class FaceDetectActivity extends BaseActivity implements DetectCallBack, 
     }
 
     @Override
-    public void onSearchListener(ArcternImage arcternImage, long[] trackId_list, ArcternRect[] arcternRects, long[] searchId_list, int[] landmarks,float[] socre) {
+    public void onSearchListener(ArcternImage arcternImage, long[] trackId_list, ArcternRect[] arcternRects, long[] searchId_list, int[] landmarks, float[] socre) {
         Tools.debugLog("onSearchListener");
         Person person = null;
         if (searchId_list.length > 0 && searchId_list[0] != -1) {
@@ -188,7 +193,7 @@ public class FaceDetectActivity extends BaseActivity implements DetectCallBack, 
             frame_width = rbgImage.width;
             frame_height = rbgImage.height;
             if (irImage != null) {
-                YTLFFace.doDelivery(rbgImage, irImage);
+                doDelivery(rbgImage, irImage);
             }
         }
     };
@@ -200,6 +205,31 @@ public class FaceDetectActivity extends BaseActivity implements DetectCallBack, 
             irImage = image;
         }
     };
+
+    private void doDelivery(final ArcternImage rbgImage, final ArcternImage irImage) {
+        if (future != null && !future.isDone()) {
+            return;
+        }
+
+        if (executorService == null) {
+            executorService = Executors.newSingleThreadExecutor();
+        }
+
+        future = executorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                LivingInterface.rotateYUV420Degree90(rbgImage);
+                LivingInterface.rotateYUV420Degree90(irImage);
+                Tools.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        YTLFFace.doDelivery(rbgImage, irImage);
+                        Tools.debugLog("executorService.submit");
+                    }
+                });
+            }
+        });
+    }
 
     private String toString2(float[] confidences) {
         if (confidences == null) {
