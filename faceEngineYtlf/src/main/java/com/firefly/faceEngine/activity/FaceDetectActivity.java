@@ -10,7 +10,6 @@ import android.widget.TextView;
 
 import com.firefly.arcterndemo.R;
 import com.firefly.faceEngine.App;
-import com.firefly.faceEngine.other.FaceInfo;
 import com.intellif.YTLFFaceManager;
 import com.firefly.faceEngine.dblib.bean.Person;
 import com.firefly.faceEngine.utils.Tools;
@@ -24,6 +23,7 @@ import com.intellif.arctern.base.ArcternAttribute;
 import com.intellif.arctern.base.ArcternImage;
 import com.intellif.arctern.base.ArcternRect;
 import com.intellif.arctern.base.AttributeCallBack;
+import com.intellif.arctern.base.DetectCallBack;
 import com.intellif.arctern.base.ExtractCallBack;
 import com.intellif.arctern.base.SearchCallBack;
 import com.intellif.arctern.base.TrackCallBack;
@@ -37,7 +37,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public class FaceDetectActivity extends BaseActivity implements TrackCallBack, AttributeCallBack, SearchCallBack, ExtractCallBack {
+public class FaceDetectActivity extends BaseActivity implements DetectCallBack, TrackCallBack, AttributeCallBack, SearchCallBack, ExtractCallBack {
     private ArcternImage irImage = null;
     private ArcternImage rbgImage = null;
     private TextView txt1, txt2, txt3;
@@ -49,10 +49,11 @@ public class FaceDetectActivity extends BaseActivity implements TrackCallBack, A
     private YTLFFaceManager YTLFFace = YTLFFaceManager.getInstance();
     private ExecutorService executorService;
     private Future future;
-    private FaceInfo faceInfo;
 
     private int view_width, view_height;
     private int frame_width, frame_height;
+    private boolean isLive;
+    private long isLiveTime = System.currentTimeMillis();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +84,7 @@ public class FaceDetectActivity extends BaseActivity implements TrackCallBack, A
         GrayInterface.getInstance().init(this);
         GrayInterface.getInstance().setLivingCallBack(irLivingListener);
 
+        YTLFFace.setOnDetectCallBack(this);
         YTLFFace.setOnTrackCallBack(this);
         YTLFFace.setOnSearchCallBack(this);
         YTLFFace.setOnAttributeCallBack(this);
@@ -94,6 +96,7 @@ public class FaceDetectActivity extends BaseActivity implements TrackCallBack, A
         List<Person> mPeople = App.getInstance().getDbManager().getPersonList();
         for (Person person : mPeople) {
             mMapPeople.put(person.getId(), person);
+            Tools.debugLog("person:" + person);
         }
     }
 
@@ -102,33 +105,84 @@ public class FaceDetectActivity extends BaseActivity implements TrackCallBack, A
     }
 
     @Override
-    public void onTrackListener(ArcternImage arcternImage, long[] trackIds, ArcternRect[] arcternRects) {
+    public void onTrackListener(ArcternImage arcternImage, long[] trackId_list, ArcternRect[] arcternRects) {
         if (arcternRects != null) {
             faceView.setFaces(arcternRects, frame_width, frame_height, view_width, view_height);
         }
     }
 
-    //人脸属监听回调
+    // RGB 回调
     @Override
-    public void onAttributeListener(ArcternImage arcternImage, long[] trackIds, ArcternRect[] arcternRects, ArcternAttribute[][] arcternAttributes, int[] landmarks) {
-        ArcternAttribute[] attributes = arcternAttributes[0];
-        if (attributes.length == 0) {
-            return;
-        }
+    public void onDetectListener(ArcternImage arcternImage, ArcternRect[] arcternRects, float[] confidences) {
+    }
 
-        faceInfo = new FaceInfo(arcternImage, arcternAttributes);
-        handleAttribute();
+    // IR 回调
+    @Override
+    public void onLivingDetectListener(ArcternImage arcternImage, ArcternRect[] arcternRects, float[] confidences) {
+    }
+
+    public void onAttributeListener(ArcternImage arcternImage, long[] trackId_list, ArcternRect[] arcternRects, ArcternAttribute[][] arcternAttributes, int[] landmarks) {
+        StringBuilder attribute = new StringBuilder();
+        for (int i = 0; i < arcternRects.length; i++) {
+            for (int j = 0; j < arcternAttributes[i].length; j++) {
+                Tools.debugLog("arcternRects.length=%s arcternAttributes[%s].length=%s", arcternRects.length, i, arcternAttributes[i].length);
+                ArcternAttribute attr = arcternAttributes[i][j];
+
+                switch (j) {
+                    case ArcternAttribute.ArcternFaceAttrTypeEnum.QUALITY:
+                        attribute.append("\n").append(getString(R.string.ytlf_dictionaries21)).append(attr.confidence);
+                        break;
+
+                    case ArcternAttribute.ArcternFaceAttrTypeEnum.LIVENESS_IR: //活体检测
+                        if (attr.label != -1 && attr.confidence >= 0.5) {
+                            isLiveTime = System.currentTimeMillis();
+                            isLive = true;
+                            attribute.append("\n").append(getString(R.string.ytlf_dictionaries19)).append(" ：").append(attr.confidence);
+                        } else if (attr.label == -1 && System.currentTimeMillis() - isLiveTime > 3000) {
+                            isLive = false;
+                            attribute.append("\n").append(getString(R.string.ytlf_dictionaries20)).append(" ");
+                            faceView.isRed = true;
+                            //attribute.append("\n  ");
+                            showText(txt2, "--");
+                        } else {
+                            return;
+                        }
+                        break;
+
+                    case ArcternAttribute.ArcternFaceAttrTypeEnum.FACE_MASK: //口罩检测
+                        attribute.append("\n").append(getString(attr.label == ArcternAttribute.LabelFaceMask.MASK ? R.string.ytlf_dictionaries8 : R.string.ytlf_dictionaries9)).append(" ");
+                        break;
+
+                    case ArcternAttribute.ArcternFaceAttrTypeEnum.IMAGE_COLOR:
+                        if (attr.label == ArcternAttribute.LabelFaceImgColor.COLOR) {
+                            attribute.append(getString(R.string.ytlf_dictionaries30)).append(" ：").append(attr.confidence);
+                        } else {
+                            attribute.append(getString(R.string.ytlf_dictionaries31)).append(" ：").append(attr.confidence);
+                        }
+                        break;
+                }
+            }
+        }
+        showText(txt1, attribute);
     }
 
     @Override
-    public void onSearchListener(ArcternImage arcternImage, long[] trackIds, ArcternRect[] arcternRects, long[] searchIds, int[] landmarks, float[] socre) {
-        if (searchIds.length <= 0 || arcternImage == null ||
-                faceInfo == null || faceInfo.getFrameId() != arcternImage.frame_id) {
-            return;
+    public void onSearchListener(ArcternImage arcternImage, long[] trackId_list, ArcternRect[] arcternRects, long[] searchId_list, int[] landmarks, float[] socre) {
+        Tools.debugLog("onSearchListener");
+        Person person = null;
+        if (searchId_list.length > 0 && searchId_list[0] != -1) {
+            person = mMapPeople.get(searchId_list[0]);
         }
 
-        faceInfo.setSearchId(searchIds[0]);
-        handlePerson();
+        StringBuffer s = new StringBuffer();
+        if (person != null) {
+            faceView.isRed = false;
+            s.append(getTimeShort()).append(person.toString()).append("\n");
+        } else {
+            faceView.isRed = true;
+            s.append(getTimeShort()).append(" ").append(getString(R.string.ytlf_dictionaries12));
+        }
+        showText(txt2, s);
     }
 
     LivingListener rgbLivingListener = new LivingListener() {
@@ -146,6 +200,7 @@ public class FaceDetectActivity extends BaseActivity implements TrackCallBack, A
     LivingListener irLivingListener = new LivingListener() {
         @Override
         public void livingData(ArcternImage image) {
+            //Tools.debugLog("ir livingData: ArcternImage: " + image);
             irImage = image;
         }
     };
@@ -168,65 +223,11 @@ public class FaceDetectActivity extends BaseActivity implements TrackCallBack, A
                     @Override
                     public void run() {
                         YTLFFace.doDelivery(rbgImage, irImage);
+                        Tools.debugLog("executorService.submit");
                     }
                 });
             }
         });
-    }
-
-    // 处理人员信息
-    private void handlePerson() {
-        Person person = mMapPeople.get(faceInfo.getSearchId());
-        StringBuffer s = new StringBuffer();
-        if (person != null) {
-            faceView.isRed = false;
-            s.append(getTimeShort()).append(person.toString()).append("\n");
-        } else {
-            faceView.isRed = true;
-            s.append(getTimeShort()).append(" ").append(getString(R.string.ytlf_dictionaries12));
-        }
-        showText(txt2, s);
-    }
-
-    // 处理人脸属性信息
-    private void handleAttribute() {
-        ArcternAttribute[] attributes = faceInfo.getAttributes()[0];
-
-        StringBuilder attribute = new StringBuilder();
-        for (int i = 0; i < attributes.length; i++) {
-            ArcternAttribute item = attributes[i];
-            switch (i) {
-                case ArcternAttribute.ArcternFaceAttrTypeEnum.QUALITY://人脸质量
-                    attribute.append("\n").append(getString(R.string.ytlf_dictionaries21)).append(item.confidence);
-
-                    if (item.confidence < 0.4) {//质量 < 0.4 ，那么不处理
-                        faceView.isRed = false;
-                        showText(txt1, "--");
-                        return;
-                    }
-
-                    break;
-
-                case ArcternAttribute.ArcternFaceAttrTypeEnum.LIVENESS_IR: //活体
-                    if (item.label == ArcternAttribute.LabelFaceLive.LIVE) {
-                        faceView.isRed = false;
-                        attribute.append("\n").append(getString(R.string.ytlf_dictionaries19)).append(" ：").append(item.confidence);
-                    } else {
-                        attribute.append("\n").append(getString(R.string.ytlf_dictionaries20)).append(" ");
-                        faceView.isRed = true;
-                        showText(txt2, "--");
-                    }
-                    break;
-
-                case ArcternAttribute.ArcternFaceAttrTypeEnum.FACE_MASK: //口罩
-                    boolean isMask = item.label == ArcternAttribute.LabelFaceMask.MASK;
-                    String str = getString(isMask ?R.string.ytlf_dictionaries8 : R.string.ytlf_dictionaries9);
-                    attribute.append("\n").append(str).append(" ");
-                    break;
-            }
-        }
-
-        showText(txt1, attribute);
     }
 
     private String toString2(float[] confidences) {
