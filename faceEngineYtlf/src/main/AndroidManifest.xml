@@ -31,7 +31,7 @@
             android:name="com.firefly.faceEngine.activity.DBActivity"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity"/>
-        <activity android:name="com.firefly.faceEngine.other.FaceInfo$SettingActivity" />
+        <activity android:name="com.firefly.faceEngine.other.SettingActivity" />
     </application>
 
 </manifest>

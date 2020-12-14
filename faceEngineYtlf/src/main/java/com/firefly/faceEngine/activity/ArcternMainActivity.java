@@ -8,7 +8,7 @@ import com.firefly.arcterndemo.R;
 import com.firefly.faceEngine.App;
 import com.firefly.faceEngine.dblib.DBManager;
 import com.firefly.faceEngine.dblib.bean.Person;
-import com.firefly.faceEngine.other.FaceInfo;
+import com.firefly.faceEngine.other.SettingActivity;
 import com.firefly.faceEngine.utils.Constants;
 import com.firefly.faceEngine.utils.GlideImageLoader;
 import com.firefly.faceEngine.utils.SPUtil;
@@ -157,7 +157,7 @@ public class ArcternMainActivity extends BaseActivity {
 
     // SDK设置
     public void onSetting(View view) {
-        Intent intent = new Intent(this, FaceInfo.SettingActivity.class);
+        Intent intent = new Intent(this, SettingActivity.class);
         startActivity(intent);
     }
 
