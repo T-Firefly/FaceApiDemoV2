@@ -51,4 +51,5 @@
     <string name="firefly_api_dictionaries23">Little</string>
     <string name="firefly_api_dictionaries24">Light Brightness %s</string>
     <string name="firefly_api_dictionaries25">Infrared Led</string>
+    <string name="firefly_api_dictionaries26">QrCode Active</string>
 </resources>
