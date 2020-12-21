@@ -156,6 +156,7 @@ public class FaceDetectActivity extends BaseActivity implements TrackCallBack, A
         }
     };
 
+    // 用线程池
     private void doDelivery(final ArcternImage rbgImage, final ArcternImage irImage) {
         if (future != null && !future.isDone()) {
             return;
@@ -168,9 +169,9 @@ public class FaceDetectActivity extends BaseActivity implements TrackCallBack, A
         future = executorService.submit(new Runnable() {
             @Override
             public void run() {
-                LivingInterface.rotateYUV420Degree90(rbgImage);
-                LivingInterface.rotateYUV420Degree90(irImage);
-                MatrixYuvUtils.mirrorForNv21(rbgImage.gdata, rbgImage.width, rbgImage.height);
+                LivingInterface.rotateYUV420Degree90(rbgImage); //旋转90度
+                LivingInterface.rotateYUV420Degree90(irImage); //旋转90度
+                MatrixYuvUtils.mirrorForNv21(rbgImage.gdata, rbgImage.width, rbgImage.height);  //rbg 数据左右镜像
                 Tools.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
