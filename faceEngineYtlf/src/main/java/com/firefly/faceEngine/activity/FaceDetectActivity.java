@@ -4,22 +4,23 @@ import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.firefly.arcterndemo.R;
 import com.firefly.faceEngine.App;
-import com.firefly.faceEngine.other.FaceInfo;
-import com.intellif.YTLFFaceManager;
 import com.firefly.faceEngine.dblib.bean.Person;
+import com.firefly.faceEngine.other.FaceInfo;
+import com.firefly.faceEngine.utils.MatrixYuvUtils;
 import com.firefly.faceEngine.utils.Tools;
 import com.firefly.faceEngine.view.FaceView;
 import com.firefly.faceEngine.view.GrayInterface;
 import com.firefly.faceEngine.view.GraySurfaceView;
 import com.firefly.faceEngine.view.LivingInterface;
 import com.firefly.faceEngine.view.LivingListener;
-import com.intellif.arctern.base.ArcternAttrResult;
+import com.intellif.YTLFFaceManager;
 import com.intellif.arctern.base.ArcternAttribute;
 import com.intellif.arctern.base.ArcternImage;
 import com.intellif.arctern.base.ArcternRect;
@@ -53,6 +54,8 @@ public class FaceDetectActivity extends BaseActivity implements TrackCallBack, A
 
     private int view_width, view_height;
     private int frame_width, frame_height;
+    private long lastOnAttributeCallBackTime;
+    private long lastOnSearchCallBackTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,6 +119,7 @@ public class FaceDetectActivity extends BaseActivity implements TrackCallBack, A
             return;
         }
 
+        lastOnAttributeCallBackTime = System.currentTimeMillis();
         faceInfo = new FaceInfo(arcternImage, arcternAttributes);
         handleAttribute();
     }
@@ -127,8 +131,10 @@ public class FaceDetectActivity extends BaseActivity implements TrackCallBack, A
             return;
         }
 
+        lastOnSearchCallBackTime = System.currentTimeMillis();
         faceInfo.setSearchId(searchIds[0]);
         handlePerson();
+        handleLandmark(arcternImage, landmarks);
     }
 
     LivingListener rgbLivingListener = new LivingListener() {
@@ -164,6 +170,7 @@ public class FaceDetectActivity extends BaseActivity implements TrackCallBack, A
             public void run() {
                 LivingInterface.rotateYUV420Degree90(rbgImage);
                 LivingInterface.rotateYUV420Degree90(irImage);
+                MatrixYuvUtils.mirrorForNv21(rbgImage.gdata, rbgImage.width, rbgImage.height);
                 Tools.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -192,52 +199,77 @@ public class FaceDetectActivity extends BaseActivity implements TrackCallBack, A
     private void handleAttribute() {
         ArcternAttribute[] attributes = faceInfo.getAttributes()[0];
 
-        StringBuilder attribute = new StringBuilder();
         for (int i = 0; i < attributes.length; i++) {
             ArcternAttribute item = attributes[i];
             switch (i) {
                 case ArcternAttribute.ArcternFaceAttrTypeEnum.QUALITY://人脸质量
-                    attribute.append("\n").append(getString(R.string.ytlf_dictionaries21)).append(item.confidence);
-
-                    if (item.confidence < 0.4) {//质量 < 0.4 ，那么不处理
-                        faceView.isRed = false;
-                        showText(txt1, "--");
-                        return;
-                    }
-
+                    faceInfo.setFaceQualityConfidence(item.confidence);
                     break;
 
                 case ArcternAttribute.ArcternFaceAttrTypeEnum.LIVENESS_IR: //活体
-                    if (item.label == ArcternAttribute.LabelFaceLive.LIVE) {
-                        faceView.isRed = false;
-                        attribute.append("\n").append(getString(R.string.ytlf_dictionaries19)).append(" ：").append(item.confidence);
-                    } else {
-                        attribute.append("\n").append(getString(R.string.ytlf_dictionaries20)).append(" ");
-                        faceView.isRed = true;
-                        showText(txt2, "--");
-                    }
+                    faceInfo.setLiveLabel(item.label);
+                    faceInfo.setLivenessConfidence(item.confidence);
                     break;
 
                 case ArcternAttribute.ArcternFaceAttrTypeEnum.FACE_MASK: //口罩
-                    boolean isMask = item.label == ArcternAttribute.LabelFaceMask.MASK;
-                    String str = getString(isMask ?R.string.ytlf_dictionaries8 : R.string.ytlf_dictionaries9);
-                    attribute.append("\n").append(str).append(" ");
+                    faceInfo.setFaceMask(item.label == ArcternAttribute.LabelFaceMask.MASK);
                     break;
             }
+        }
+
+        StringBuilder attribute = new StringBuilder();
+        attribute.append("\n")
+                .append(getString(R.string.ytlf_dictionaries21))
+                .append(faceInfo.getFaceQualityConfidence())
+                .append("\n");
+
+        if (faceInfo.isLiveness()) {
+            attribute.append(getString(R.string.ytlf_dictionaries19))
+                    .append(" ：")
+                    .append(faceInfo.getLivenessConfidence())
+                    .append("\n");
+        } else if (faceInfo.isNotLiveness()) {
+            attribute.append(getString(R.string.ytlf_dictionaries20))
+                    .append("\n");
+            faceView.isRed = true;
+            showText(txt2, "--");
+            setVisibility(imgLandmark, View.GONE);
+        }
+
+        if (faceInfo.isFaceMask()) {
+            attribute.append(getString(R.string.ytlf_dictionaries8));
+        } else {
+            attribute.append(getString(R.string.ytlf_dictionaries9));
+        }
+
+        if (!faceInfo.isFaceMask() && faceInfo.getFaceQualityConfidence() < 0.4) {//无口罩且质量 < 0.4
+            faceView.isRed = false;
+            showText(txt1, "--");
+            return;
         }
 
         showText(txt1, attribute);
     }
 
-    private String toString2(float[] confidences) {
-        if (confidences == null) {
-            return "confidences == null";
+    // 处理人脸关键坐标
+    private void handleLandmark(ArcternImage arcternImage, int[] landmarks) {
+        try {
+            Bitmap bitmap = Tools.bgr2Bitmap(arcternImage.gdata, arcternImage.width, arcternImage.height);
+            Bitmap landmarksBitmap = Tools.drawPointOnBitmap(bitmap, landmarks);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        imgLandmark.setImageBitmap(landmarksBitmap);
+                        imgLandmark.setVisibility(View.VISIBLE);
+                    } catch (Throwable e) {
+                        Tools.printStackTrace(e);
+                    }
+                }
+            });
+        } catch (Throwable e) {
+            Tools.printStackTrace(e);
         }
-        StringBuffer str = new StringBuffer();
-        for (float item : confidences) {
-            str.append(item).append(" ");
-        }
-        return str.toString();
     }
 
     protected void showText(TextView txt, CharSequence msg) {
@@ -245,6 +277,15 @@ public class FaceDetectActivity extends BaseActivity implements TrackCallBack, A
             @Override
             public void run() {
                 txt.setText(msg);
+            }
+        });
+    }
+
+    protected void setVisibility(View view, int visibility) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                view.setVisibility(visibility);
             }
         });
     }
@@ -272,21 +313,17 @@ public class FaceDetectActivity extends BaseActivity implements TrackCallBack, A
             return;
         }
 
-        mCountDownTimer = new CountDownTimer(Long.MAX_VALUE, 100) {
-            private long timer = 0;
-
+        mCountDownTimer = new CountDownTimer(Long.MAX_VALUE, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
-                timer++;
-                if (timer % 30 == 0) {
+                if (lastOnAttributeCallBackTime + 3000 < System.currentTimeMillis()) {
+                    showText(txt1, "--");
+                    faceView.isRed = false;
                 }
 
-                if (timer % 150 == 0) {
+                if (lastOnSearchCallBackTime + 3000 < System.currentTimeMillis()) {
                     showText(txt2, "--");
-                }
-
-                if (timer % 30 == 0) {
-                    //showLandmarksImage(); // test landmark
+                    setVisibility(imgLandmark, View.GONE);
                 }
             }
 

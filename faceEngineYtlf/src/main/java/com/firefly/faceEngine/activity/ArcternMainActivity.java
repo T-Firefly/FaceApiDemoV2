@@ -8,7 +8,6 @@ import com.firefly.arcterndemo.R;
 import com.firefly.faceEngine.App;
 import com.firefly.faceEngine.dblib.DBManager;
 import com.firefly.faceEngine.dblib.bean.Person;
-import com.firefly.faceEngine.other.SettingActivity;
 import com.firefly.faceEngine.utils.Constants;
 import com.firefly.faceEngine.utils.GlideImageLoader;
 import com.firefly.faceEngine.utils.SPUtil;
@@ -36,11 +35,11 @@ public class ArcternMainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_face_main);
         initSetting();
-        //requestPermission();
-        //findViewById(R.id.btn_detect).performClick();
         if (!Tools.isCameraCanUse()) {
             Tools.toast("Camera occupied or unavailable");
             finish();
+        } else {
+            //findViewById(R.id.btn_detect).performClick();
         }
     }
 
@@ -155,12 +154,6 @@ public class ArcternMainActivity extends BaseActivity {
         runOnFaceSdkReady(runnable);
     }
 
-    // SDK设置
-    public void onSetting(View view) {
-        Intent intent = new Intent(this, SettingActivity.class);
-        startActivity(intent);
-    }
-
     private void requestPermission() {
        /* final RxPermissions rxPermissions = new RxPermissions(this);
         rxPermissions.request(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -198,6 +191,10 @@ public class ArcternMainActivity extends BaseActivity {
         Constants.recognition_overturn_ircamera = SPUtil.readCameraIr();
         Constants.face_frame_mirror = SPUtil.readFaceFrameMirror();
         Constants.face_frame_reverse = SPUtil.readFaceFrameReverse();
+
+        // firefly设备默认值
+        Constants.recognition_overturn_rgbcamera = true;
+
         Constants.select_screen_rotate_rgbcamera = SPUtil.readScreenRotateRgbCamera();
         Constants.select_screen_rotate_ircamera = SPUtil.readScreenRotateIrCamera();
 

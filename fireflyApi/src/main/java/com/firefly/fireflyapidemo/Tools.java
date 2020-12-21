@@ -20,8 +20,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
@@ -401,38 +399,31 @@ public class Tools {
 
     public static Bitmap drawPointOnBitmap(Bitmap bitmap, int[] landmark){
         Bitmap newbitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
-        Canvas cv = new Canvas(newbitmap);
-        Paint paint = new Paint();
-        paint.setStyle(Paint.Style.STROKE);//设置非填充
+        try {
+            Canvas cv = new Canvas(newbitmap);
+            Paint paint = new Paint();
+            paint.setStyle(Paint.Style.STROKE);//设置非填充
+            paint.setStrokeWidth(8);//笔宽5像素
+            paint.setColor(Color.RED);//设置为红笔
+            paint.setAntiAlias(true);//锯齿不显示
+            paint.setDither(true);//设置图像抖动处理
+            paint.setStrokeJoin(Paint.Join.ROUND);//设置图像的结合方式
+            paint.setStrokeCap(Paint.Cap.ROUND);//设置画笔为圆形样式
 
-        paint.setStrokeWidth(8);//笔宽5像素
+            int splitSize = 2;//分割的块大小
+            Object[] subAry = splitAry(landmark, splitSize);//分割后的子块数组
+            for(Object obj: subAry){//打印输出结果
+                int[] aryItem = (int[]) obj;
+                Log.e("array",(aryItem[0] + ", "+aryItem[1]));
+                cv.drawPoint(aryItem[0],aryItem[1],paint);
+            }
 
-        paint.setColor(Color.RED);//设置为红笔
-
-        paint.setAntiAlias(true);//锯齿不显示
-
-        paint.setDither(true);//设置图像抖动处理
-
-        paint.setStrokeJoin(Paint.Join.ROUND);//设置图像的结合方式
-
-        paint.setStrokeCap(Paint.Cap.ROUND);//设置画笔为圆形样式
-
-
-//        cv.drawPoint(250,250,paint);
-        int splitSize = 2;//分割的块大小
-        Object[] subAry = splitAry(landmark, splitSize);//分割后的子块数组
-
-        for(Object obj: subAry){//打印输出结果
-            int[] aryItem = (int[]) obj;
-//            for(int i = 0; i < aryItem.length; i++){
-//              Log.e("array",(aryItem[i] + ", "));
-//            }
-//            System.out.println();
-            Log.e("array",(aryItem[0] + ", "+aryItem[1]));
-            cv.drawPoint(aryItem[0],aryItem[1],paint);
+            cv.save();
+            cv.restore();
+        } catch (Throwable e) {
+            printStackTrace(e);
         }
-        cv.save();
-        cv.restore();
+
         return newbitmap;
     }
 
