@@ -13,9 +13,11 @@ import android.widget.ImageView;
 import androidx.annotation.Nullable;
 
 import com.firefly.faceEngine.App;
+import com.firefly.fireflyapidemo.Tools;
 import com.intellif.YTLFFaceManager;
 import com.firefly.faceEngine.dblib.DBManager;
 import com.firefly.faceEngine.dblib.bean.Person;
+import com.intellif.arctern.base.ArcternFeatureResult;
 import com.intellif.arctern.base.ArcternImage;
 import com.intellif.arctern.base.ArcternRect;
 import com.intellif.arctern.base.ExtractCallBack;
@@ -91,9 +93,9 @@ public class DBActivity extends BaseActivity implements ExtractCallBack {
     public void onExtractFeatureListener(ArcternImage arcternImage, byte[][] features, ArcternRect[] arcternRects) {
         if(features.length>0){
             bitmapFeature = features[0];
-            Log.e(TAG, "bitmapFeature.length： "+bitmapFeature.length);
-        }else{
-            Log.e(TAG, "feature is empty！！！");
+            Tools.debugLog("bitmapFeature.length： " + bitmapFeature.length);
+        } else {
+            Tools.debugLog("feature is empty！！！");
         }
     }
 
