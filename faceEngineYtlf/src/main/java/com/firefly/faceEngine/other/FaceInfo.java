@@ -7,6 +7,10 @@ public class FaceInfo {
     private ArcternImage arcternImage;
     private ArcternAttribute[][] attributes;
     private long searchId;
+    private float faceQualityConfidence = 0f;//人脸质量 范围0-1
+    private float livenessConfidence; //活体 置信度
+    private boolean isFaceMask; //口罩
+    private int liveLabel; //活体  0未知，1活体，－1非活体
 
     public FaceInfo() {
 
@@ -49,4 +53,43 @@ public class FaceInfo {
         this.searchId = searchId;
     }
 
+    public float getFaceQualityConfidence() {
+        return faceQualityConfidence;
+    }
+
+    public void setFaceQualityConfidence(float faceQualityConfidence) {
+        this.faceQualityConfidence = faceQualityConfidence;
+    }
+
+    public boolean isFaceMask() {
+        return isFaceMask;
+    }
+
+    public void setFaceMask(boolean faceMask) {
+        isFaceMask = faceMask;
+    }
+
+    public boolean isLiveness() {
+        return liveLabel == 1;
+    }
+
+    public boolean isNotLiveness() {
+        return liveLabel == -1;
+    }
+
+    public int getLiveLabel() {
+        return liveLabel;
+    }
+
+    public void setLiveLabel(int liveLabel) {
+        this.liveLabel = liveLabel;
+    }
+
+    public float getLivenessConfidence() {
+        return livenessConfidence;
+    }
+
+    public void setLivenessConfidence(float livenessConfidence) {
+        this.livenessConfidence = livenessConfidence;
+    }
 }

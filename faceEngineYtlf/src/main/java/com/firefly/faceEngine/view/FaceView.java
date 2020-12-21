@@ -81,7 +81,7 @@ public class FaceView extends View {
 		canvas.rotate(-0);   //Canvas.rotate()默认是逆时针
 		mLinePaint.setColor(isRed ? Color.RED : Color.GREEN);
 		for(int i = 0; i< mFaces.length; i++){
-			if(Constants.face_frame_mirror) {
+			if(!Constants.face_frame_mirror) {
 				rectF_left = mFaces[i].getRectLeft();
 				rectF_right = mFaces[i].getRectRight();
 			}else {
