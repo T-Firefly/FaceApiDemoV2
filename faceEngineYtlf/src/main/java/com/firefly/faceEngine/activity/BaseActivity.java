@@ -34,7 +34,6 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     protected static final int IMAGE_PICKER_ONE = 100;
-    protected String TAG = "firefly_debug3";
     public void showShortToast(String content) {
         Tools.toast(content);
     }

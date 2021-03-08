@@ -77,7 +77,7 @@ public class DBActivity extends BaseActivity implements ExtractCallBack {
             int result = YTLFFace.dataBaseAdd(id, bitmapFeature);
             String s = getString(result == 0? R.string.ytlf_dictionaries16:R.string.ytlf_dictionaries17);
             showShortToast(s);
-            Log.i(TAG, s);
+            Tools.debugLog(s);
         }
     }
 
@@ -115,12 +115,12 @@ public class DBActivity extends BaseActivity implements ExtractCallBack {
                     Bitmap bitmap = BitmapFactory.decodeFile(mBitmapPath);
                     image.setImageBitmap(bitmap);
                     faceBitmap = bitmap;
-                    Log.i(TAG, "bitmap path:"+mBitmapPath);
+                    Tools.debugLog("bitmap path:%s", mBitmapPath);
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
                             int result = getFeature(mBitmapPath);
-                            Log.e(TAG, "result: "+result);
+                            Tools.debugLog("result: %s", result);
                         }
                     }).start();
                 }
@@ -130,7 +130,7 @@ public class DBActivity extends BaseActivity implements ExtractCallBack {
 
     public void onLoadPersons(View view) {
         List<Person> personList = dbManager.getPersonList();
-        Log.d(TAG, "size: "+personList.size());
+        Tools.debugLog(personList);
         if(personList.size()<=0){
             showShortToast(R.string.ytlf_dictionaries18);
             return;
@@ -142,10 +142,8 @@ public class DBActivity extends BaseActivity implements ExtractCallBack {
             Person person = personList.get(i);
             ids[i] = person.getId();
             features[i] = person.getFeature();
-            Log.i(TAG, i+" person: "+person);
         }
         int result = YTLFFace.dataBaseAdd(ids, features);
-        Log.i(TAG, "result: "+result);
         showShortToast(result == 0?R.string.ytlf_dictionaries3:R.string.ytlf_dictionaries4);
     }
 
