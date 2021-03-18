@@ -1,8 +1,10 @@
 package com.firefly.fireflyapidemo;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -14,6 +16,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.hardware.Camera;
+import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -51,6 +54,17 @@ public class Tools {
             return (info.flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
         } catch (Throwable e) {
             Tools.printStackTrace(e);
+            return false;
+        }
+    }
+
+    public static boolean isNetWorkConnect() {
+        try {
+            ConnectivityManager cm = (ConnectivityManager) getApp().getSystemService(Context.CONNECTIVITY_SERVICE);
+            @SuppressLint("MissingPermission") boolean result = cm.getActiveNetworkInfo() != null;
+            return result;
+        } catch (Exception e) {
+            printStackTrace(e);
             return false;
         }
     }
