@@ -42,6 +42,6 @@
     <string name="ytlf_dictionaries40">载入数据库人脸到内存</string>
     <string name="ytlf_dictionaries41">删除DB数据库</string>
     <string name="ytlf_dictionaries42">清空人脸</string>
-    <string name="ytlf_dictionaries43"></string>
+    <string name="ytlf_dictionaries43">网络连接出错，请重新尝试</string>
     <string name="ytlf_dictionaries44"></string>
 </resources>

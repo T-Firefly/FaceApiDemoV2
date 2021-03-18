@@ -59,8 +59,14 @@ public class ArcternMainActivity extends BaseActivity {
                         Tools.debugLog("initSDK finish");
                     }
 
-                    if (isFaceSdkReady() && runnable != null) {
-                        runnable.run();
+                    if (isFaceSdkReady()) {
+                        if (runnable != null) {
+                            runnable.run();
+                        }
+                    } else {
+                        if (!Tools.isNetWorkConnect()) {
+                            Tools.toast(R.string.ytlf_dictionaries43);
+                        }
                     }
 
                 } catch (Exception e) {

@@ -43,6 +43,6 @@
     <string name="ytlf_dictionaries40">Face loaded into memory database</string>
     <string name="ytlf_dictionaries41">Delete DB database</string>
     <string name="ytlf_dictionaries42">Empty Face</string>
-    <string name="ytlf_dictionaries43"></string>
+    <string name="ytlf_dictionaries43">Network connection error, please try again</string>
     <string name="ytlf_dictionaries44"></string>
 </resources>
