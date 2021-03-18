@@ -64,7 +64,7 @@ public class ArcternMainActivity extends BaseActivity {
                             runnable.run();
                         }
                     } else {
-                        if (!Tools.isNetWorkConnect()) {
+                        if (!Tools.isNetWorkConnect() && !YTLFFace.checkLicense()) {
                             Tools.toast(R.string.ytlf_dictionaries43);
                         }
                     }
