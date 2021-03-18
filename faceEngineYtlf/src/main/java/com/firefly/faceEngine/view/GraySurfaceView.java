@@ -11,7 +11,7 @@ import com.firefly.faceEngine.utils.Preferences;
 
 
 /**
- * Created by intellif on 2017/3/13.
+ * Created by firefly on 2017/3/13.
  */
 public class GraySurfaceView extends SurfaceView implements SurfaceHolder.Callback{
     private static final String TAG = GraySurfaceView.class.getSimpleName();

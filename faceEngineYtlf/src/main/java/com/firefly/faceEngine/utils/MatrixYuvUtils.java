@@ -27,7 +27,7 @@ import java.util.List;
 import static com.firefly.faceEngine.activity.ArcternMainActivity.FACE_PATH;
 
 /**
- * Created by intellif on 2017/3/13.
+ * Created by firefly on 2017/3/13.
  */
 
 public class MatrixYuvUtils {
