@@ -14,16 +14,12 @@ import com.firefly.faceEngine.utils.Preferences;
  * Created by firefly on 2017/3/13.
  */
 public class GraySurfaceView extends SurfaceView implements SurfaceHolder.Callback{
-    private static final String TAG = GraySurfaceView.class.getSimpleName();
-    private Preferences preferences;
     private SurfaceHolder mSurfaceHolder;
 
     public GraySurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        preferences = new Preferences(context, Preferences.SETTING);
-
         mSurfaceHolder = getHolder();
-        mSurfaceHolder.setFormat(PixelFormat.TRANSPARENT);//translucent半透明 transparent透明
+        mSurfaceHolder.setFormat(PixelFormat.TRANSPARENT);
         mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         mSurfaceHolder.addCallback(this);
     }

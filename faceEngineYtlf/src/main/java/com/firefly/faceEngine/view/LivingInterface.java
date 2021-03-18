@@ -1,8 +1,6 @@
 package com.firefly.faceEngine.view;
 
-import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.os.Environment;
@@ -11,6 +9,7 @@ import android.view.SurfaceHolder;
 
 import com.firefly.faceEngine.utils.Constants;
 import com.firefly.faceEngine.utils.MatrixYuvUtils;
+import com.firefly.faceEngine.utils.Tools;
 import com.intellif.arctern.base.ArcternImage;
 
 import java.io.ByteArrayOutputStream;
@@ -21,24 +20,15 @@ import java.io.InputStream;
 import java.util.List;
 
 public class LivingInterface implements Camera.PreviewCallback {
-    private static final String TAG = LivingInterface.class.getSimpleName();
-    private static final int REQUEST_EXTERNAL_STORAGE = 1;
-    private static final int REQUEST_CAMERA = 2;
-    private static String[] PERMISSIONS_STORAGE = {
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE};
-    private Context mContext;
     private Camera mCamera;
     private Camera.Parameters mParams;
     private int mCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
     private Activity mActivity;
-    private int mHandle = 0;
     private static LivingInterface mCameraInterface;
     private int mDisplayRotation;
     private int mDisplayOrientation;
     private final int previewWidth = 640;
     private final int previewHeight = 480;
-    private int ratio = 1280;
     private LivingListener livingListener;
 
     private LivingInterface() {
@@ -53,10 +43,6 @@ public class LivingInterface implements Camera.PreviewCallback {
 
     public void init(Activity activity) {
         this.mActivity = activity;
-    }
-
-    public void initRatio(int ratio) {
-        this.ratio = ratio;
     }
 
     public void setLivingCallBack(LivingListener listener) {
@@ -105,7 +91,7 @@ public class LivingInterface implements Camera.PreviewCallback {
             Camera.getCameraInfo(cameraId, cameraInfo);
             mCamera.setPreviewDisplay(surfaceHolder);
         } catch (Exception e) {
-            Log.e(TAG, "Could not preview the image.", e);
+            Tools.printStackTrace(e);
         }
     }
 
