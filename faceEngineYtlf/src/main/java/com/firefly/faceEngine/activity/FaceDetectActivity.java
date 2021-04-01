@@ -219,28 +219,32 @@ public class FaceDetectActivity extends BaseActivity implements TrackCallBack, A
         }
 
         StringBuilder attribute = new StringBuilder();
-        attribute.append("\n")
-                .append(getString(R.string.ytlf_dictionaries21))
-                .append(faceInfo.getFaceQualityConfidence())
-                .append("\n");
 
-        if (faceInfo.isLiveness()) {
-            attribute.append(getString(R.string.ytlf_dictionaries19))
-                    .append(" ：")
-                    .append(faceInfo.getLivenessConfidence())
+        if (faceInfo.isFaceMask()) {    //口罩时，不处理人脸质量和活体
+            attribute.append(getString(R.string.ytlf_dictionaries8))
                     .append("\n");
-        } else if (faceInfo.isNotLiveness()) {
-            attribute.append(getString(R.string.ytlf_dictionaries20))
-                    .append("\n");
-            faceView.isRed = true;
-            showText(txt2, "--");
-            setVisibility(imgLandmark, View.GONE);
-        }
 
-        if (faceInfo.isFaceMask()) {
-            attribute.append(getString(R.string.ytlf_dictionaries8));
         } else {
-            attribute.append(getString(R.string.ytlf_dictionaries9));
+            attribute.append(getString(R.string.ytlf_dictionaries9))
+                    .append("\n");
+
+            attribute.append(getString(R.string.ytlf_dictionaries21))
+                    .append(faceInfo.getFaceQualityConfidence())
+                    .append("\n");
+
+            if (faceInfo.isLiveness()) {
+                attribute.append(getString(R.string.ytlf_dictionaries19))
+                        .append(" ：")
+                        .append(faceInfo.getLivenessConfidence())
+                        .append("\n");
+
+            } else if (faceInfo.isNotLiveness()) {
+                attribute.append(getString(R.string.ytlf_dictionaries20))
+                        .append("\n");
+                faceView.isRed = true;
+                showText(txt2, "--");
+                setVisibility(imgLandmark, View.GONE);
+            }
         }
 
         if (!faceInfo.isFaceMask() && faceInfo.getFaceQualityConfidence() < 0.4) {//无口罩且质量 < 0.4
