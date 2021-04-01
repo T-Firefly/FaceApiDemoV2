@@ -37,9 +37,9 @@ public class DBActivity extends BaseActivity implements ExtractCallBack {
     private Bitmap faceBitmap;
     private String mBitmapPath = "";
     private byte[] bitmapFeature = null;
-    
+
     private YTLFFaceManager YTLFFace = YTLFFaceManager.getInstance();
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,7 +49,7 @@ public class DBActivity extends BaseActivity implements ExtractCallBack {
         initDb();
     }
 
-    private void initView(){
+    private void initView() {
         setActionBarTitle(R.string.ytlf_dictionaries13);
         image = findViewById(R.id.image);
         et_name = findViewById(R.id.et_name);
@@ -57,41 +57,49 @@ public class DBActivity extends BaseActivity implements ExtractCallBack {
 
     }
 
-    private void initDb(){
+    private void initDb() {
         dbManager = App.getInstance().getDbManager();
     }
 
     public void onRegister(View view) {
         String name = et_name.getText().toString();
-        if(faceBitmap == null){
+        if (faceBitmap == null) {
             showShortToast(R.string.ytlf_dictionaries14);
             return;
         }
-        if("".equals(name)){
+
+        if ("".equals(name)) {
             showShortToast(R.string.ytlf_dictionaries15);
             return;
         }
-        if(bitmapFeature != null){
+
+        if (bitmapFeature != null) {
             long id = dbManager.insertPerson(name, bitmapFeature);
             //载入内存
             int result = YTLFFace.dataBaseAdd(id, bitmapFeature);
-            String s = getString(result == 0? R.string.ytlf_dictionaries16:R.string.ytlf_dictionaries17);
+            String s = getString(result == 0 ? R.string.ytlf_dictionaries16 : R.string.ytlf_dictionaries17);
             showShortToast(s);
             Tools.debugLog(s);
+            if (result == 0) {
+                et_name.setText("");
+                image.setImageResource(R.mipmap.ic_launcher);
+                bitmapFeature = null;
+                mBitmapPath = "";
+            }
         }
     }
 
-    private int getFeature(String bitmapPath){
+    private int getFeature(String bitmapPath) {
         return YTLFFace.doFeature(bitmapPath, this);
     }
 
-    private int getFeature(Bitmap bitmap){
+    private int getFeature(Bitmap bitmap) {
         return YTLFFace.doFeature(bitmap, this);
     }
 
     @Override
     public void onExtractFeatureListener(ArcternImage arcternImage, byte[][] features, ArcternRect[] arcternRects) {
-        if(features.length>0){
+        if (features.length > 0) {
             bitmapFeature = features[0];
             Tools.debugLog("bitmapFeature.length： " + bitmapFeature.length);
         } else {
@@ -131,39 +139,44 @@ public class DBActivity extends BaseActivity implements ExtractCallBack {
     public void onLoadPersons(View view) {
         List<Person> personList = dbManager.getPersonList();
         Tools.debugLog(personList);
-        if(personList.size()<=0){
+        if (personList.size() <= 0) {
             showShortToast(R.string.ytlf_dictionaries18);
             return;
         }
         long[] ids = new long[personList.size()];
         byte[][] features = new byte[personList.size()][];
 
-        for(int i=0; i<personList.size(); i++){
+        for (int i = 0; i < personList.size(); i++) {
             Person person = personList.get(i);
             ids[i] = person.getId();
             features[i] = person.getFeature();
         }
         int result = YTLFFace.dataBaseAdd(ids, features);
-        showShortToast(result == 0?R.string.ytlf_dictionaries3:R.string.ytlf_dictionaries4);
+        showShortToast(result == 0 ? R.string.ytlf_dictionaries3 : R.string.ytlf_dictionaries4);
     }
 
     public void onDeletePersons(View view) {
         List<Person> personList = dbManager.getPersonList();
-        if(personList.size()==0){
-            showShortToast("db is empty");
+        if (personList.size() == 0) {
+            Tools.toast("DB is empty");
+            return;
         }
 
-        for(int i=0; i<personList.size(); i++){
+        int number = 0;
+        for (int i = 0; i < personList.size(); i++) {
             Person person = personList.get(i);
             int flag = YTLFFace.dataBaseDelete(person.getId());
-            if(flag == 0){
+            if (flag == 0) {
+                number++;
                 dbManager.deletePerson(person);
             }
+
+            Tools.toast(" Deletion complete, %s people were deleted", number);
         }
     }
 
     public void onClear(View view) {
         int result = YTLFFace.dataBaseClear();
-        showShortToast(result == 0?R.string.ytlf_dictionaries3:R.string.ytlf_dictionaries4);
+        showShortToast(result == 0 ? R.string.ytlf_dictionaries3 : R.string.ytlf_dictionaries4);
     }
 }
