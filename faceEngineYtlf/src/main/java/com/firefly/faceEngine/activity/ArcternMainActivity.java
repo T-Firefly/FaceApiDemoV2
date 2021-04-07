@@ -8,6 +8,7 @@ import com.firefly.arcterndemo.R;
 import com.firefly.faceEngine.App;
 import com.firefly.faceEngine.dblib.DBManager;
 import com.firefly.faceEngine.dblib.bean.Person;
+import com.firefly.faceEngine.other.Debug;
 import com.firefly.faceEngine.utils.Constants;
 import com.firefly.faceEngine.utils.GlideImageLoader;
 import com.firefly.faceEngine.utils.SPUtil;
@@ -154,6 +155,24 @@ public class ArcternMainActivity extends BaseActivity {
             public void run() {
                 Intent intent = new Intent(context, DBActivity.class);
                 startActivity(intent);
+            }
+        };
+
+        runOnFaceSdkReady(runnable);
+    }
+
+    public void test3(View view) {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                Debug.doSearch(context, "/sdcard/firefly/图1.jpg");
+
+                Tools.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Debug.doSearch(context, "/sdcard/firefly/图2.jpg");
+                    }
+                }, 3000);
             }
         };
 
