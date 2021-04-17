@@ -44,5 +44,5 @@
 	<string name="ytlf_dictionaries41">Удаление базы данных DB</string>
 	<string name="ytlf_dictionaries42">Пустые лица</string>
 	<string name="ytlf_dictionaries43">Network connection error, please try again</string>
-	<string name="ytlf_dictionaries44"></string>
+	<string name="ytlf_dictionaries44">The face is already registered</string>
 </resources>

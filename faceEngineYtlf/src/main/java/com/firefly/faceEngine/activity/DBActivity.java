@@ -74,6 +74,15 @@ public class DBActivity extends BaseActivity implements ExtractCallBack {
         }
 
         if (bitmapFeature != null) {
+            long searchId = YTLFFace.doSearch(bitmapFeature);
+            if (searchId > 0) {
+                Tools.debugLog("searchId=%s", searchId);
+                showShortToast(R.string.ytlf_dictionaries44);
+                return;
+            }
+        }
+
+        if (bitmapFeature != null) {
             long id = dbManager.insertPerson(name, bitmapFeature);
             //载入内存
             int result = YTLFFace.dataBaseAdd(id, bitmapFeature);
