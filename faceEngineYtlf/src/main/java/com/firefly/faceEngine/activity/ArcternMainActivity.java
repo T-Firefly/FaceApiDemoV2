@@ -17,6 +17,7 @@ import com.intellif.YTLFFaceManager;
 import com.lzy.imagepicker.ImagePicker;
 import com.lzy.imagepicker.view.CropImageView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -119,16 +120,35 @@ public class ArcternMainActivity extends BaseActivity {
             Tools.debugLog("initSDK DB is empty");
             YTLFFaceManager.isLoadDB = true;
         } else {
-            long[] ids = new long[personList.size()];
-            byte[][] features = new byte[personList.size()][];
-            for (int i = 0; i < personList.size(); i++) {
-                Person person = personList.get(i);
-                ids[i] = person.getId();
-                features[i] = person.getFeature();
+            int size = personList.size();
+            ArrayList<Long> idList  = new ArrayList<>();
+            ArrayList<byte[]> featureList  = new ArrayList<>();
+
+            for (int i = 0; i < size; i++) {
+                try {
+                    Person person = personList.get(i);
+                    if (idList.contains(person.getId()) || featureList.contains(person.getFeature()) ||
+                            person.getFeature()== null || person.getFeature().length < 1) {
+                        Tools.debugLog("person fail : ", person.toString());
+                        continue;
+                    }
+
+                    idList.add(person.getId());
+                    featureList.add(person.getFeature());
+                } catch (Exception e) {
+                    Tools.printStackTrace(e);
+                }
             }
 
-            int result = YTLFFace.dataBaseAdd(ids, features);
-            Tools.debugLog("initSDK dataBaseAdd =%s", result == 0 ? R.string.ytlf_dictionaries3 : R.string.ytlf_dictionaries4);
+            long[] ids = new long[idList.size()];
+            byte[][] features = new byte[idList.size()][];
+            for (int i = 0; i < idList.size(); i++) {
+                ids[i] = idList.get(i);
+                features[i] = featureList.get(i);
+            }
+
+            YTLFFace.dataBaseAdd(ids, features);
+            Tools.debugLog("initSDK loadDB size=%s", ids.length);
             YTLFFaceManager.isLoadDB = true;
         }
 
