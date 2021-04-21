@@ -272,6 +272,9 @@ public class FaceDetectActivity extends BaseActivity implements TrackCallBack, A
                     }
                 }
             });
+
+            //保存bitmap本地图片
+            //saveBitmap2Jpeg(bitmap);
         } catch (Throwable e) {
             Tools.printStackTrace(e);
         }
@@ -297,6 +300,20 @@ public class FaceDetectActivity extends BaseActivity implements TrackCallBack, A
 
     public static String getTimeShort() {
         return new SimpleDateFormat("HH:mm:ss:SSS ").format(new Date());
+    }
+
+    private int times=0;
+    //保存bitmap本地图片 10次
+    private void saveBitmap2Jpeg(Bitmap bitmap){
+        if(times > 10){
+            return;
+        }
+
+        times ++;
+        //"/sdcard/firefly/ytlf_v2/"
+        String path = YTLFFaceManager.getInstance().getYTIFFacthPath() + "img/" + System.currentTimeMillis() + ".jpg";
+        boolean result = Tools.saveBitmap2Jpeg(bitmap, path);
+        Tools.debugLog("result=%s, path=%s", result, path);
     }
 
     //获得容器的高度

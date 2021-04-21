@@ -26,6 +26,9 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -503,5 +506,40 @@ public class Tools {
             printStackTrace(e);
         }
         return bitmap;
+    }
+
+    //保存bitmap本地图片
+    public static boolean saveBitmap2Jpeg(Bitmap bitmap, String path) {
+        if(bitmap == null || TextUtils.isEmpty(path)){
+            return false;
+        }
+
+        OutputStream outputStream = null;
+        try {
+            File file = new File(path);
+            if (!file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
+
+            file.createNewFile();
+
+            outputStream = new FileOutputStream(path);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+            outputStream.flush();
+            return true;
+
+        } catch (Exception e) {
+            printStackTrace(e);
+            return false;
+
+        } finally {
+            try {
+                if (outputStream != null) {
+                    outputStream.close();
+                }
+            } catch (Exception e) {
+                printStackTrace(e);
+            }
+        }
     }
 }
