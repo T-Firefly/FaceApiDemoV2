@@ -122,6 +122,7 @@ public class FaceDetectActivity extends BaseActivity implements TrackCallBack, A
         lastOnAttributeCallBackTime = System.currentTimeMillis();
         faceInfo = new FaceInfo(arcternImage, arcternAttributes);
         handleAttribute();
+        refreshLogTextView();
     }
 
     @Override
@@ -215,45 +216,19 @@ public class FaceDetectActivity extends BaseActivity implements TrackCallBack, A
                 case ArcternAttribute.ArcternFaceAttrTypeEnum.FACE_MASK: //口罩
                     faceInfo.setFaceMask(item.label == ArcternAttribute.LabelFaceMask.MASK);
                     break;
+
+                case ArcternAttribute.ArcternFaceAttrTypeEnum.GENDER: //性别
+                    Tools.debugLog("性别:%s", item.toString());
+                    faceInfo.setGender(item.label);
+                    faceInfo.setGenderConfidence(item.confidence);
+                    break;
+
+                case ArcternAttribute.ArcternFaceAttrTypeEnum.AGE: //年龄
+                    Tools.debugLog("年龄:%s", item.toString());
+                    faceInfo.setAge((int) item.confidence);
+                    break;
             }
         }
-
-        StringBuilder attribute = new StringBuilder();
-
-        if (faceInfo.isFaceMask()) {    //口罩时，不处理人脸质量和活体
-            attribute.append(getString(R.string.ytlf_dictionaries8))
-                    .append("\n");
-
-        } else {
-            attribute.append(getString(R.string.ytlf_dictionaries9))
-                    .append("\n");
-
-            attribute.append(getString(R.string.ytlf_dictionaries21))
-                    .append(faceInfo.getFaceQualityConfidence())
-                    .append("\n");
-
-            if (faceInfo.isLiveness()) {
-                attribute.append(getString(R.string.ytlf_dictionaries19))
-                        .append(" ：")
-                        .append(faceInfo.getLivenessConfidence())
-                        .append("\n");
-
-            } else if (faceInfo.isNotLiveness()) {
-                attribute.append(getString(R.string.ytlf_dictionaries20))
-                        .append("\n");
-                faceView.isRed = true;
-                showText(txt2, "--");
-                setVisibility(imgLandmark, View.GONE);
-            }
-        }
-
-        if (!faceInfo.isFaceMask() && faceInfo.getFaceQualityConfidence() < 0.4) {//无口罩且质量 < 0.4
-            faceView.isRed = false;
-            showText(txt1, "--");
-            return;
-        }
-
-        showText(txt1, attribute);
     }
 
     // 处理人脸关键坐标
@@ -278,6 +253,54 @@ public class FaceDetectActivity extends BaseActivity implements TrackCallBack, A
         } catch (Throwable e) {
             Tools.printStackTrace(e);
         }
+    }
+
+    // 显示log
+    private void refreshLogTextView(){
+        StringBuilder attribute = new StringBuilder();
+
+        if (faceInfo.isFaceMask()) {    //口罩时，不处理人脸质量和活体
+            attribute.append(getString(R.string.ytlf_dictionaries8))
+                    .append("\n");
+
+        } else {
+            attribute.append(getString(R.string.ytlf_dictionaries9))
+                    .append("\n");
+
+            attribute.append(getString(R.string.ytlf_dictionaries21))
+                    .append(faceInfo.getFaceQualityConfidence())
+                    .append("\n");
+
+            if (faceInfo.isLiveness()) {
+                attribute.append(getString(R.string.ytlf_dictionaries19))
+                        .append(":")
+                        .append(faceInfo.getLivenessConfidence())
+                        .append("\n");
+
+            } else if (faceInfo.isNotLiveness()) {
+                attribute.append(getString(R.string.ytlf_dictionaries20))
+                        .append("\n");
+                faceView.isRed = true;
+                showText(txt2, "--");
+                setVisibility(imgLandmark, View.GONE);
+            }
+
+            attribute.append(getString(R.string.ytlf_dictionaries45))
+                    .append(faceInfo.getGenderString())
+                    .append("\n");
+
+            attribute.append(getString(R.string.ytlf_dictionaries46))
+                    .append(faceInfo.getAgeString())
+                    .append("\n");
+        }
+
+        if (!faceInfo.isFaceMask() && faceInfo.getFaceQualityConfidence() < 0.4) {//无口罩且质量 < 0.4
+            faceView.isRed = false;
+            showText(txt1, "--");
+            return;
+        }
+
+        showText(txt1, attribute);
     }
 
     protected void showText(TextView txt, CharSequence msg) {
