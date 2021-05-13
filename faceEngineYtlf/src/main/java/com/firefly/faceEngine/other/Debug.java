@@ -3,12 +3,12 @@ package com.firefly.faceEngine.other;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.text.TextUtils;
-
 import com.firefly.faceEngine.App;
 import com.firefly.faceEngine.dblib.bean.Person;
 import com.firefly.fireflyapidemo.Tools;
 import com.intellif.YTLFFaceManager;
+import com.intellif.arctern.base.ArcternAttrResult;
+import com.intellif.arctern.base.ArcternAttribute;
 import com.intellif.arctern.base.ArcternFeatureResult;
 import com.intellif.arctern.base.ArcternImage;
 import com.intellif.arctern.base.ArcternRect;
@@ -48,7 +48,7 @@ public class Debug {
             public void run() {
                 try {
                     Bitmap bitmap = BitmapFactory.decodeFile(path);
-                    ArcternFeatureResult arcternFeatureResult =  YTLFFaceManager.getInstance().doFeature(bitmap);
+                    ArcternFeatureResult arcternFeatureResult = YTLFFaceManager.getInstance().doFeature(bitmap);
                     if (arcternFeatureResult.feature.length > 0) {
                         Tools.debugLog("feature.length： " + arcternFeatureResult.feature.length);
                     } else {
@@ -101,6 +101,50 @@ public class Debug {
                     } else {
                         Tools.debugLog("%s feature is empty！！！", path);
                     }
+                } catch (Exception e) {
+                    Tools.printStackTrace(e);
+                } finally {
+                    Tools.dismissLoadingProgress();
+                }
+            }
+        }).start();
+    }
+
+    //人脸属性 同步方式
+    public static void getFaceAttrs(Activity activity, String path) {
+        if (!new File(path).exists()) {
+            Tools.debugLog("doSearch %s file is no exist", path);
+            return;
+        }
+
+        Tools.showLoadingProgress(activity);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Tools.debugLog("%s -------------------", path);
+
+                    Bitmap bitmap = BitmapFactory.decodeFile(path);
+                    ArcternAttrResult arcternAttrResult = YTLFFaceManager.getInstance().getFaceAttrs(bitmap, ArcternAttrResult.ARCTERN_FACE_ATTR_MASK_ALL);
+                    ArcternAttribute[] attributes = arcternAttrResult.arcternAttributes[0];
+
+                    for (int i = 0; i < attributes.length; i++) {
+                        ArcternAttribute item = attributes[i];
+                        switch (i) {
+                            case ArcternAttribute.ArcternFaceAttrTypeEnum.QUALITY: //人脸质量
+                                Tools.debugLog("%s >>> 人脸质量 %s", i, item.toString());
+                                break;
+
+                            case ArcternAttribute.ArcternFaceAttrTypeEnum.FACE_MASK: //口罩
+                                Tools.debugLog("%s >>> 口罩 %s", i, item.toString());
+                                break;
+
+                            default:
+                                Tools.debugLog("%s >>> %s", i, item.toString());
+                                break;
+                        }
+                    }
+
                 } catch (Exception e) {
                     Tools.printStackTrace(e);
                 } finally {

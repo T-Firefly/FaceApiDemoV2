@@ -199,6 +199,24 @@ public class ArcternMainActivity extends BaseActivity {
         runOnFaceSdkReady(runnable);
     }
 
+    public void test5(View view) {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                Debug.getFaceAttrs(context, "/sdcard/firefly/图1.jpg");
+
+                Tools.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Debug.getFaceAttrs(context, "/sdcard/firefly/图2.jpg");
+                    }
+                }, 3000);
+            }
+        };
+
+        runOnFaceSdkReady(runnable);
+    }
+
     private void requestPermission() {
        /* final RxPermissions rxPermissions = new RxPermissions(this);
         rxPermissions.request(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
