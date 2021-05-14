@@ -49,7 +49,9 @@ public class Debug {
                 try {
                     Bitmap bitmap = BitmapFactory.decodeFile(path);
                     ArcternFeatureResult arcternFeatureResult = YTLFFaceManager.getInstance().doFeature(bitmap);
+                    // 人脸的眼睛、嘴巴、鼻子等等landmarks坐标
                     Bitmap landmarksBitmap = com.firefly.faceEngine.utils.Tools.drawPointOnBitmap(bitmap, arcternFeatureResult.landmarks);
+
                     if (arcternFeatureResult.feature.length > 0) {
                         Tools.debugLog("feature.length： " + arcternFeatureResult.feature.length);
                     } else {
@@ -65,15 +67,28 @@ public class Debug {
         }).start();
     }
 
-    /*
-        Debug.doSearch(context, "/sdcard/firefly/图1.jpg");
-        Tools.runOnUiThread(new Runnable() {
+    //人脸特征比对 同步方式
+    public static void doFeature(Activity activity, String path, String path2) {
+        Tools.showLoadingProgress(activity);
+        new Thread(new Runnable() {
             @Override
             public void run() {
-                Debug.doSearch(context, "/sdcard/firefly/图2.jpg");
+                try {
+                    ArcternFeatureResult result = YTLFFaceManager.getInstance().doFeature(BitmapFactory.decodeFile(path));
+                    ArcternFeatureResult result2 = YTLFFaceManager.getInstance().doFeature(BitmapFactory.decodeFile(path2));
+
+                    float value = YTLFFaceManager.getInstance().doFeature(result.feature, result2.feature);
+                    Tools.debugLog(" %s | %s  >>  value= %s", path, path2, value);
+
+                } catch (Exception e) {
+                    Tools.printStackTrace(e);
+                } finally {
+                    Tools.dismissLoadingProgress();
+                }
             }
-        }, 3000);
-     */
+        }).start();
+    }
+
     // 人脸识别
     public static void doSearch(Activity activity, String path) {
         if (!new File(path).exists()) {
