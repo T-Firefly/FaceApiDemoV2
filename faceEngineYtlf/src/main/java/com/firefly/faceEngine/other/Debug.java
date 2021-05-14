@@ -41,21 +41,25 @@ public class Debug {
 
     // 提取特证值，用例，同步方式
     // path："/sdcard/test.png"
-    public static void getFeature(String path) {
-        Tools.debugLog("wait for ...");
+    public static void getFeature(Activity activity, String path) {
+        Tools.showLoadingProgress(activity);
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     Bitmap bitmap = BitmapFactory.decodeFile(path);
                     ArcternFeatureResult arcternFeatureResult = YTLFFaceManager.getInstance().doFeature(bitmap);
+                    Bitmap landmarksBitmap = com.firefly.faceEngine.utils.Tools.drawPointOnBitmap(bitmap, arcternFeatureResult.landmarks);
                     if (arcternFeatureResult.feature.length > 0) {
                         Tools.debugLog("feature.length： " + arcternFeatureResult.feature.length);
                     } else {
                         Tools.debugLog("feature is empty！！！");
                     }
+
                 } catch (Exception e) {
                     Tools.printStackTrace(e);
+                } finally {
+                    Tools.dismissLoadingProgress();
                 }
             }
         }).start();
