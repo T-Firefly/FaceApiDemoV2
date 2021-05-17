@@ -172,4 +172,49 @@ public class Debug {
             }
         }).start();
     }
+
+    //压力测试
+    public static void stressTestingGetFaceAttrs(Activity activity, String path) {
+        if (!new File(path).exists()) {
+            Tools.debugLog("doSearch %s file is no exist", path);
+            return;
+        }
+
+        Tools.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Tools.showLoadingProgress(activity, false);
+            }
+        }, 3000);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int time = 0; time < 50 * 1000; time++) {
+                    Bitmap bitmap = null;
+                    try {
+                        bitmap = BitmapFactory.decodeFile(path);
+                        ArcternAttrResult arcternAttrResult = YTLFFaceManager.getInstance().getFaceAttrs(bitmap, ArcternAttrResult.ARCTERN_FACE_ATTR_MASK_ALL);
+                        ArcternAttribute[] attributes = arcternAttrResult.arcternAttributes[0];
+
+                        for (int i = 0; i < attributes.length; i++) {
+                            ArcternAttribute item = attributes[i];
+                            switch (i) {
+                                case ArcternAttribute.ArcternFaceAttrTypeEnum.FACE_MASK: //口罩
+                                    Tools.debugLog("%s %s次 >>> 口罩 %s", Tools.getTimeShort(), time, item.toString());
+                                    break;
+                            }
+                        }
+
+                    } catch (Exception e) {
+                        Tools.printStackTrace(e);
+                    } finally {
+                        Tools.recycle(bitmap);
+                    }
+                }
+
+                Tools.dismissLoadingProgress();
+            }
+        }).start();
+    }
 }
