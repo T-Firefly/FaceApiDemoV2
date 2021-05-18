@@ -29,7 +29,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class Tools {
@@ -540,6 +542,20 @@ public class Tools {
             } catch (Exception e) {
                 printStackTrace(e);
             }
+        }
+    }
+
+    public static String getTimeShort() {
+        return new SimpleDateFormat("HH:mm:ss:SSS ").format(new Date());
+    }
+
+    public static void recycle(Bitmap bitmap) {
+        try {
+            if (bitmap != null) {
+                bitmap.recycle();
+            }
+        } catch (Exception e) {
+            printStackTrace(e);
         }
     }
 }
