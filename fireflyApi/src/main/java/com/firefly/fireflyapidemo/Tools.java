@@ -282,6 +282,17 @@ public class Tools {
         });
     }
 
+    public static void showLoadingProgressText(final String txt){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (loadingProgress != null) {
+                    loadingProgress.showText(txt);
+                }
+            }
+        });
+    }
+
     public static boolean isActivityDestroyed(Fragment fragment) {
         try {
             return fragment != null && fragment.isAdded() && isActivityDestroyed(fragment.getActivity());

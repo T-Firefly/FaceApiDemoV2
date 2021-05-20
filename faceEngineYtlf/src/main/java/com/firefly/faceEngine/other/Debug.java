@@ -176,7 +176,7 @@ public class Debug {
     //压力测试
     public static void stressTestingGetFaceAttrs(Activity activity, String path) {
         if (!new File(path).exists()) {
-            Tools.debugLog("doSearch %s file is no exist", path);
+            Tools.debugLog("stressTestingGetFaceAttrs %s file is no exist", path);
             return;
         }
 
@@ -202,6 +202,7 @@ public class Debug {
                             switch (i) {
                                 case ArcternAttribute.ArcternFaceAttrTypeEnum.FACE_MASK: //口罩
                                     Tools.debugLog("%s %s次 >>> 口罩 %s", Tools.getTimeShort(), time, item.toString());
+                                    Tools.showLoadingProgressText(String.format("%s 次", time));
                                     break;
                             }
                         }
