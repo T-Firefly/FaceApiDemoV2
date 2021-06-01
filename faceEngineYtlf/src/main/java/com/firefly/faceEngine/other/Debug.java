@@ -198,15 +198,18 @@ public class Debug {
                         ArcternAttribute[] attributes = arcternAttrResult.arcternAttributes[0];
 
                         for (int i = 0; i < attributes.length; i++) {
-                            ArcternAttribute item = attributes[i];
                             switch (i) {
                                 case ArcternAttribute.ArcternFaceAttrTypeEnum.FACE_MASK: //口罩
+                                    ArcternAttribute item = attributes[i];
                                     Tools.debugLog("%s %s次 >>> 口罩 %s", Tools.getTimeShort(), time, item.toString());
                                     Tools.showLoadingProgressText(String.format("%s 次", time));
                                     break;
                             }
                         }
 
+                        if (arcternAttrResult != null) {
+                            arcternAttrResult.arcternAttributes = null;
+                        }
                     } catch (Exception e) {
                         Tools.printStackTrace(e);
                     } finally {
