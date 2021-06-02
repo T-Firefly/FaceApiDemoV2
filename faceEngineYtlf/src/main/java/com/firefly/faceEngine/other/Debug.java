@@ -190,21 +190,16 @@ public class Debug {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                Bitmap bitmap = BitmapFactory.decodeFile(path);
+
                 for (int time = 0; time < 50 * 1000; time++) {
-                    Bitmap bitmap = null;
                     try {
-                        bitmap = BitmapFactory.decodeFile(path);
                         ArcternAttrResult arcternAttrResult = YTLFFaceManager.getInstance().getFaceAttrs(bitmap, ArcternAttrResult.ARCTERN_FACE_ATTR_MASK_ALL);
                         ArcternAttribute[] attributes = arcternAttrResult.arcternAttributes[0];
 
-                        for (int i = 0; i < attributes.length; i++) {
-                            switch (i) {
-                                case ArcternAttribute.ArcternFaceAttrTypeEnum.FACE_MASK: //口罩
-                                    ArcternAttribute item = attributes[i];
-                                    Tools.debugLog("%s %s次 >>> 口罩 %s", Tools.getTimeShort(), time, item.toString());
-                                    Tools.showLoadingProgressText(String.format("%s 次", time));
-                                    break;
-                            }
+                        if (attributes.length >= ArcternAttribute.ArcternFaceAttrTypeEnum.FACE_MASK) {
+                            ArcternAttribute item = attributes[ArcternAttribute.ArcternFaceAttrTypeEnum.FACE_MASK];
+                            Tools.debugLog("%s %s次 >>> 口罩 %s", Tools.getTimeShort(), time, item.toString());
                         }
 
                         if (arcternAttrResult != null) {
@@ -212,8 +207,6 @@ public class Debug {
                         }
                     } catch (Exception e) {
                         Tools.printStackTrace(e);
-                    } finally {
-                        Tools.recycle(bitmap);
                     }
                 }
 
