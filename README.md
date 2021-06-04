@@ -18,6 +18,7 @@ FaceApi主要是人脸识别应用编程接口，包含了人脸检测、人脸�
 ## 历史分支
 |  日期   | 版本  | 说明  |修改人  |
 |  ----  | ----  | ----  | ----  |
+| 2021-06-01  | 1.3 | 解决客户反馈的问题 |Xiao Datao｜Song Jianfeng |
 | 2020-12-21  | 1.2 | 提升SDK效率，解决客户反馈的问题 |Xiao Datao｜Song Jianfeng |
 | 2020-07-30  | 1.1 | V2版 |Xiao Datao｜Song Jianfeng |
 | 2020-05-21  | 1.0 | 初版完成 |Song Jianfeng |
