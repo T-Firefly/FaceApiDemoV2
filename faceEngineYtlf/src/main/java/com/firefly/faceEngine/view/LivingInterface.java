@@ -6,7 +6,9 @@ import android.hardware.Camera;
 import android.os.Environment;
 import android.util.Log;
 import android.view.SurfaceHolder;
+import android.view.View;
 
+import com.firefly.arcterndemo.R;
 import com.firefly.faceEngine.utils.Constants;
 import com.firefly.faceEngine.utils.MatrixYuvUtils;
 import com.firefly.faceEngine.utils.Tools;
@@ -27,8 +29,8 @@ public class LivingInterface implements Camera.PreviewCallback {
     private static LivingInterface mCameraInterface;
     private int mDisplayRotation;
     private int mDisplayOrientation;
-    private final int previewWidth = 640;
-    private final int previewHeight = 480;
+    private int previewWidth = 640;
+    private int previewHeight = 480;
     private LivingListener livingListener;
 
     private LivingInterface() {
@@ -140,7 +142,11 @@ public class LivingInterface implements Camera.PreviewCallback {
     private void configureCamera(int width, int height) {
         Camera.Parameters parameters = mCamera.getParameters();
         // Set the PreviewSize and AutoFocus:..
-        setOptimalPreviewSize(parameters);
+        if (Tools.isLandscape()) {
+            setOptimalPreviewSize2(parameters);
+        } else {
+            setOptimalPreviewSize(parameters);
+        }
         setAutoFocus(parameters);
 //		parameters.setZoom(10);
         // And set the parameters:
@@ -152,6 +158,26 @@ public class LivingInterface implements Camera.PreviewCallback {
     private void setOptimalPreviewSize(Camera.Parameters cameraParameters) {
         cameraParameters.setPreviewSize(previewWidth, previewHeight);
         cameraParameters.setPictureSize(previewWidth, previewHeight);
+    }
+
+    private void setOptimalPreviewSize2(Camera.Parameters parameters) {
+        List<Camera.Size> sizes = parameters.getSupportedPreviewSizes();
+        Camera.Size size = getOptimalPreviewSize(sizes, Tools.getScreenWidth(), Tools.getScreenHeight());
+        if (size != null) {
+            Tools.debugLog("setOptimalPreviewSize2 size w=%s, h=%s", size.width, size.height);
+            previewWidth = size.width;
+            previewHeight = size.height;
+
+            View parent = mActivity.findViewById(R.id.parent_preview);
+            if (parent != null) {
+                parent.getLayoutParams().width = previewWidth;
+                parent.getLayoutParams().height = previewHeight;
+            }
+        }
+
+        parameters.setPreviewSize(previewWidth, previewHeight);
+        parameters.setPictureSize(previewWidth, previewHeight);
+
     }
 
     //设置聚焦
@@ -199,5 +225,46 @@ public class LivingInterface implements Camera.PreviewCallback {
 
     public static void rotateYUV420Degree90(ArcternImage arcternImage){
         arcternImage.gdata = MatrixYuvUtils.rotateYUV420Degree90(arcternImage.gdata, arcternImage.height, arcternImage.width);
+    }
+
+    private Camera.Size getOptimalPreviewSize(List<Camera.Size> sizes, int w, int h) {
+        float ASPECT_TOLERANCE = 0.1f;
+        float targetRatio = h * 0.1f / w;
+
+        if (sizes == null) {
+            return null;
+        }
+
+        Camera.Size optimalSize = null;
+        float minDiff = Float.MAX_VALUE;
+
+        for (Camera.Size size : sizes) {
+            Tools.debugLog("size w=%s, h=%s", size.width, size.height);
+            float ratio = size.width * 0.1f / size.height;
+            if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) {
+                continue;
+            }
+            if (Math.abs(size.height - h) < minDiff) {
+                optimalSize = size;
+                minDiff = Math.abs(size.height - h);
+            }
+        }
+
+        if (optimalSize == null) {
+            minDiff = Float.MAX_VALUE;
+            for (Camera.Size size : sizes) {
+                if (Math.abs(size.height - h) < minDiff) {
+                    optimalSize = size;
+                    minDiff = Math.abs(size.height - h);
+                }
+            }
+        }
+
+        return optimalSize;
+    }
+
+    private void kk(int width, int height){
+        View parent = mActivity.findViewById(R.id.parent_preview);
+        parent.getLayoutParams().width = width;
     }
 }

@@ -1,7 +1,6 @@
 package com.firefly.faceEngine.other;
 
 import android.graphics.Bitmap;
-import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
@@ -18,8 +17,6 @@ import com.firefly.faceEngine.other.FaceInfo;
 import com.firefly.faceEngine.utils.MatrixYuvUtils;
 import com.firefly.faceEngine.utils.Tools;
 import com.firefly.faceEngine.view.FaceView;
-import com.firefly.faceEngine.view.GrayInterface;
-import com.firefly.faceEngine.view.GraySurfaceView;
 import com.firefly.faceEngine.view.LivingInterface;
 import com.firefly.faceEngine.view.LivingListener;
 import com.firefly.faceEngine.view.LivingSurfaceView;
@@ -42,14 +39,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import static com.firefly.api.HardwareCtrl.setInfraredFillLight;
+import static com.firefly.fireflyapidemo.Tools.isLandscape;
 
 public class SingleCameraFaceDetectActivity extends BaseActivity implements TrackCallBack, AttributeCallBack, SearchCallBack, ExtractCallBack {
-    private ArcternImage irImage = null;
     private ArcternImage rbgImage = null;
     private TextView txt1, txt2, txt3;
     private FaceView faceView;
-    private ImageView imgLandmark;
-    private GraySurfaceView grayInterface;
+    private ImageView imgLandmark, imgRbg, imgRbg2, imgRbg3;
     private Map<Long, Person> mMapPeople = new HashMap<>();
     private CountDownTimer mCountDownTimer;
     private YTLFFaceManager YTLFFace = YTLFFaceManager.getInstance();
@@ -65,7 +61,7 @@ public class SingleCameraFaceDetectActivity extends BaseActivity implements Trac
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_face_detect);
+        setContentView(R.layout.activity_face_detect_single_camera);
 
         initView();
         getViewWH();
@@ -74,22 +70,19 @@ public class SingleCameraFaceDetectActivity extends BaseActivity implements Trac
     }
 
     private void initView() {
-        setActionBarTitle(R.string.app_name);
+        setActionBarTitle("SingleCameraFaceDetect");
         txt1 = findViewById(R.id.txt1);
         txt2 = findViewById(R.id.txt2);
         txt3 = findViewById(R.id.txt3);
         faceView = findViewById(R.id.faceview);
         imgLandmark = findViewById(R.id.img_landmark);
-
-        grayInterface = findViewById(R.id.grayInterface);
-        grayInterface.setZOrderOnTop(true);
-        grayInterface.getHolder().setFormat(PixelFormat.TRANSLUCENT);
+        imgRbg = findViewById(R.id.img_rbg);
+        imgRbg2 = findViewById(R.id.img_rbg2);
+        imgRbg3 = findViewById(R.id.img_rbg3);
 
         LivingInterface.getInstance().init(this);
         LivingInterface.getInstance().setLivingCallBack(rgbLivingListener);
 
-        GrayInterface.getInstance().init(this);
-        GrayInterface.getInstance().setLivingCallBack(irLivingListener);
 
         YTLFFace.setOnTrackCallBack(this);
         YTLFFace.setOnSearchCallBack(this);
@@ -147,23 +140,20 @@ public class SingleCameraFaceDetectActivity extends BaseActivity implements Trac
         @Override
         public void livingData(ArcternImage arcternImage) {
             rbgImage = arcternImage;
+            if (isLandscape()) {
+                turnWidthHeight(rbgImage);
+            }
+
             frame_width = rbgImage.width;
             frame_height = rbgImage.height;
-            if (irImage != null) {
-                doDelivery(rbgImage, irImage);
-            }
-        }
-    };
 
-    LivingListener irLivingListener = new LivingListener() {
-        @Override
-        public void livingData(ArcternImage image) {
-            irImage = image;
+            //Tools.debugLog("rgbLivingListener livingData rbgImage=%s", rbgImage.toString());
+            doDelivery(rbgImage);
         }
     };
 
     // 用线程池
-    private void doDelivery(final ArcternImage rbgImage, final ArcternImage irImage) {
+    private void doDelivery(final ArcternImage rbgImage) {
         if (future != null && !future.isDone()) {
             return;
         }
@@ -175,17 +165,65 @@ public class SingleCameraFaceDetectActivity extends BaseActivity implements Trac
         future = executorService.submit(new Runnable() {
             @Override
             public void run() {
-                LivingInterface.rotateYUV420Degree90(rbgImage); //旋转90度
-                LivingInterface.rotateYUV420Degree90(irImage); //旋转90度
-                MatrixYuvUtils.mirrorForNv21(rbgImage.gdata, rbgImage.width, rbgImage.height);  //rbg 数据左右镜像
+
+                handleRbg(imgRbg, rbgImage, false);
+
+                //左右镜像
+                MatrixYuvUtils.mirrorForNv21(rbgImage.gdata, rbgImage.width, rbgImage.height);
+
+                //handleRbg(imgRbg, rbgImage, false);
+                //LivingInterface.rotateYUV420Degree90(rbgImage); //旋转90度
+                //handleRbg(imgRbg2, rbgImage, false);
+                //MatrixYuvUtils.mirrorForNv21(rbgImage.gdata, rbgImage.width, rbgImage.height);
+                //MatrixYuvUtils.mirrorForNv21(rbgImage.gdata, rbgImage.height, rbgImage.width);
+                //handleRbg(imgRbg3, rbgImage, false);
+
                 Tools.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        YTLFFace.doDelivery(rbgImage, irImage);
+                        YTLFFace.doDelivery(rbgImage, rbgImage);
                     }
                 });
+
+
             }
         });
+    }
+
+    private void turnWidthHeight(ArcternImage arcternImage) {
+        int w = arcternImage.width;
+        arcternImage.width = arcternImage.height;
+        arcternImage.height = w;
+    }
+
+    private void handleRbg(ImageView img, ArcternImage arcternImage, boolean isTurn) {
+        try {
+            int width = arcternImage.width;
+            int height = arcternImage.height;
+
+            if (isTurn) {
+                width = arcternImage.height;
+                height = arcternImage.width;
+
+            }
+            Bitmap bitmap = MatrixYuvUtils.dataToBitmap(arcternImage.gdata, width, height);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        img.setImageBitmap(bitmap);
+                        img.setVisibility(View.VISIBLE);
+                    } catch (Throwable e) {
+                        Tools.printStackTrace(e);
+                    }
+                }
+            });
+
+            //保存bitmap本地图片
+            //saveBitmap2Jpeg(bitmap);
+        } catch (Throwable e) {
+            Tools.debugLog("handleRbg error");
+        }
     }
 
     // 处理人员信息
@@ -276,7 +314,7 @@ public class SingleCameraFaceDetectActivity extends BaseActivity implements Trac
                     .append(faceInfo.getFaceQualityConfidence())
                     .append("\n");
 
-            if (faceInfo.isLiveness()) {
+           /* if (faceInfo.isLiveness()) {
                 attribute.append(getString(R.string.ytlf_dictionaries19))
                         .append(":")
                         .append(faceInfo.getLivenessConfidence())
@@ -288,7 +326,7 @@ public class SingleCameraFaceDetectActivity extends BaseActivity implements Trac
                 faceView.isRed = true;
                 showText(txt2, "--");
                 setVisibility(imgLandmark, View.GONE);
-            }
+            }*/
 
             attribute.append(getString(R.string.ytlf_dictionaries45))
                     .append(faceInfo.getGenderString())
@@ -350,7 +388,6 @@ public class SingleCameraFaceDetectActivity extends BaseActivity implements Trac
         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                faceView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 view_width = faceView.getWidth();
                 view_height = faceView.getHeight();
             }

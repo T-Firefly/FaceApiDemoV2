@@ -10,8 +10,10 @@
         android:orientation="vertical">
 
         <FrameLayout
+            android:id="@+id/parent_preview"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal">
 
             <com.firefly.faceEngine.view.LivingSurfaceView
                 android:layout_width="match_parent"
@@ -23,15 +25,28 @@
                 android:layout_height="match_parent" />
 
             <LinearLayout
-                android:layout_width="128dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_gravity="right|top">
+                android:layout_gravity="right|top"
+                android:orientation="vertical">
 
-                <com.firefly.faceEngine.view.GraySurfaceView
-                    android:id="@+id/grayInterface"
+                <ImageView
+                    android:id="@+id/img_rbg"
                     android:layout_width="128dp"
-                    android:layout_height="156dp" />
+                    android:layout_height="156dp"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/img_rbg2"
+                    android:layout_width="128dp"
+                    android:layout_height="156dp"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/img_rbg3"
+                    android:layout_width="128dp"
+                    android:layout_height="156dp"
+                    android:visibility="gone" />
 
                 <ImageView
                     android:id="@+id/img_landmark"
@@ -57,7 +72,7 @@
             android:lineSpacingMultiplier="1.3"
             android:textColor="@color/white"
             android:layout_marginRight="10dp"
-            android:gravity="center_horizontal"/>
+            android:gravity="center_horizontal" />
 
         <TextView
             android:id="@+id/txt2"
@@ -76,7 +91,7 @@
             android:layout_weight="1"
             android:lineSpacingMultiplier="1.3"
             android:textColor="@color/white"
-            android:visibility="gone"/>
+            android:visibility="gone" />
     </LinearLayout>
 
 </RelativeLayout>

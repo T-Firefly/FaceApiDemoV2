@@ -6,6 +6,7 @@ import android.app.Application;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -22,7 +23,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
@@ -146,6 +150,14 @@ public class Tools {
 
     public static void debugLog(String format, Object... args) {
         debugLog(String.format(format, args));
+    }
+
+    public static void debugLog(int tag, String format, Object... args) {
+        String thread = "";
+        if (isUIThread()) {
+            thread = "isUIThread: ";
+        }
+        log_d("firefly_debug"+tag, thread + String.format(format, args));
     }
 
     public static void debugLog(Bundle bundle) {
@@ -568,5 +580,36 @@ public class Tools {
         } catch (Exception e) {
             printStackTrace(e);
         }
+    }
+
+    //是否横屏
+    public static boolean isLandscape() {
+        try {
+            Configuration mConfiguration = getApp().getResources().getConfiguration(); //获取设置的配置信息
+            return mConfiguration.orientation == mConfiguration.ORIENTATION_LANDSCAPE;
+        } catch (Exception e) {
+            printStackTrace(e);
+            return true;
+        }
+    }
+
+    public static int getScreenWidth() {
+        WindowManager wm = (WindowManager) getApp().getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+        DisplayMetrics metrics = new DisplayMetrics();
+        display.getRealMetrics(metrics);
+        return metrics.widthPixels;
+    }
+
+    public static int getScreenHeight() {
+        WindowManager wm = (WindowManager) getApp().getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+        DisplayMetrics metrics = new DisplayMetrics();
+        display.getRealMetrics(metrics);
+        return metrics.heightPixels;
+    }
+
+    public static float getScreenWHScale() {
+        return 1.0f * getScreenWidth() / getScreenHeight();
     }
 }
